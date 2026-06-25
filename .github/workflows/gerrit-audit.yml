@@ -1,0 +1,21 @@
+name: Gerrit Automated Audit
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Se ejecuta automáticamente cada 6 horas
+  workflow_dispatch:      # Te permite activarlo manualmente desde GitHub cuando quieras
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Run Gerrit Audit Script
+        run: node index.js
