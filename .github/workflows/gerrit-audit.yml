@@ -3,7 +3,7 @@ name: Gerrit Automated Audit
 on:
   schedule:
     - cron: '0 */6 * * *' # Se ejecuta automáticamente cada 6 horas
-  workflow_dispatch:      # Te permite activarlo manualmente desde GitHub cuando quieras
+  workflow_dispatch:      # Permite activarlo manualmente desde GitHub
 
 jobs:
   audit:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 26
+          node-version: 22
 
       - name: Run Gerrit Audit Script
         run: node index.js
