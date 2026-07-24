@@ -4,12 +4,16 @@ go 1.26.0
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
+<<<<<<< HEAD
 	github.com/docker/cli v29.5.3+incompatible
+=======
+	github.com/docker/cli v29.6.2+incompatible
+>>>>>>> 3241bbd25a1b1df972c30a0992d4b7acda25549e
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/google/go-containerregistry v0.21.7
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
 	github.com/hexops/gotextdiff v1.0.3
-	github.com/moby/go-archive v0.2.0
+	github.com/moby/go-archive v0.2.1
 	github.com/moby/moby v28.5.2+incompatible
 	github.com/moby/sys/signal v0.7.1
 	github.com/spf13/cobra v1.10.2
@@ -25,19 +29,32 @@ require (
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
+<<<<<<< HEAD
 	github.com/docker/docker-credential-helpers v0.9.5 // indirect
+=======
+	github.com/docker/docker-credential-helpers v0.9.8 // indirect
+>>>>>>> 3241bbd25a1b1df972c30a0992d4b7acda25549e
 	github.com/docker/go-connections v0.7.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+<<<<<<< HEAD
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/patternmatcher v0.6.0 // indirect
 	github.com/moby/sys/atomicwriter v0.1.0 // indirect
 	github.com/moby/sys/sequential v0.6.0 // indirect
 	github.com/moby/sys/user v0.4.0 // indirect
+=======
+	github.com/klauspost/compress v1.19.1 // indirect
+	github.com/moby/docker-image-spec v1.3.1 // indirect
+	github.com/moby/patternmatcher v0.6.1 // indirect
+	github.com/moby/sys/atomicwriter v0.1.0 // indirect
+	github.com/moby/sys/sequential v0.7.0 // indirect
+	github.com/moby/sys/user v0.4.1 // indirect
+>>>>>>> 3241bbd25a1b1df972c30a0992d4b7acda25549e
 	github.com/moby/sys/userns v0.1.0 // indirect
 	github.com/moby/term v0.5.2 // indirect
 	github.com/morikuni/aec v1.1.0 // indirect
@@ -52,8 +69,15 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.44.0 // indirect
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
+<<<<<<< HEAD
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.46.0 // indirect
+=======
+	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
+	golang.org/x/tools v0.48.0 // indirect
+>>>>>>> 3241bbd25a1b1df972c30a0992d4b7acda25549e
 )
