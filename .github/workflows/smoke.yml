@@ -39,8 +39,11 @@ jobs:
           go-version-file: go.mod
 
       - name: Download cache
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run download --repo dependabot/smoke-tests --name cache-${{ matrix.suite }} --dir cache
+          gh run download --repo dependabot/smoke-tests --name "cache-${{ matrix.suite }}" --dir cache || true
 
       - name: ${{ matrix.suite }}
         env:
@@ -48,7 +51,8 @@ jobs:
         run: |
           set -o pipefail
           gh api "repos/dependabot/smoke-tests/contents/tests/smoke-${{ matrix.suite }}.yaml" -H "Accept: application/vnd.github.raw" > smoke.yaml
-          go run cmd/dependabot/dependabot.go test \n            -f=smoke.yaml \n            -o=result.yaml \n            --cache=cache \n            --timeout 20m \n            2>&1 | tee -a log.txt
+          go run cmd/dependabot/dependabot.go test \
+            -f=smoke.yaml \n            -o=result.yaml \n            --cache=cache \n            --timeout 20m \n            2>&1 | tee -a log.txt
 
       - name: Diff
         if: always()
