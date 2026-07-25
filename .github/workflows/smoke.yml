@@ -39,8 +39,8 @@ jobs:
           go-version-file: go.mod
 
       - name: Download cache
-        run: |
         continue-on-error: true
+        run: |
           gh run download --repo dependabot/smoke-tests --name cache-${{ matrix.suite }} --dir cache
 
       - name: ${{ matrix.suite }}
@@ -53,7 +53,6 @@ jobs:
 
       - name: Diff
         if: always()
-        continue-on-error: true
         run: diff --ignore-space-change smoke.yaml result.yaml && echo "Contents are identical" || exit 0
 
       - name: Create summary
