@@ -9,6 +9,7 @@ permissions:
   contents: read
 
 env:
+          PROMOTE: true
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
@@ -45,6 +46,7 @@ jobs:
 
       - name: ${{ matrix.suite }}
         env:
+          PROMOTE: true
           LOCAL_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -o pipefail
