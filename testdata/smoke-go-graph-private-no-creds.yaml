@@ -1,0 +1,9 @@
+output:
+  - type: record_update_job_error
+    expect:
+      data:
+        error-type: snapshots_unavailable_graph_error
+        error-details:
+          message: Unable to submit data to the Dependency Snapshot API
+  - type: mark_as_processed
+
