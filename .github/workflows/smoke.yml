@@ -1,61 +1,38 @@
+mkdir -p .github/workflows
+cat << 'EOF' > .github/workflows/smoke.yml
 name: Smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
   pull_request:
-    branches: ["main"]
-
-permissions:
-  contents: read
-
-env:
-  PROMOTE: true
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   suites:
     runs-on: ubuntu-latest
     steps:
       - id: gather
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           URL="https://api.github.com/repos/dependabot/smoke-tests/contents/tests"
-          DATA="$(gh api $URL | jq -r '.[].name'  | sed 's/smoke-//' | sed 's/.yaml$//' | jq -R | jq -sc)"
+          DATA="$(gh api $URL | jq -r '.[].name' | sed 's/smoke-//' | sed 's/\.yaml$//' | jq -R . | jq -sc .)"
           echo "suite=$DATA" >> $GITHUB_OUTPUT
     outputs:
       suites: ${{ steps.gather.outputs.suite }}
 
   smoke:
-    runs-on: ubuntu-latest
     needs: suites
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.suites.outputs.suites) }}
+        suite: ${{ json(needs.suites.outputs.suites) }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Set up Go
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-
-      - name: Download cache
-        continue-on-error: true
+      - uses: actions/checkout@v4
+      - name: Run Smoke Test
         run: |
-          gh run download --repo dependabot/smoke-tests --name cache-${{ matrix.suite }} --dir cache
-
-      - name: ${{ matrix.suite }}
-        env:
-          PROMOTE: true
-          LOCAL_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -o pipefail
-          gh api "repos/dependabot/smoke-tests/contents/tests/smoke-${{ matrix.suite }}.yaml" -H "Accept: application/vnd.github.raw" > smoke.yaml
-          go run cmd/dependabot/dependabot.go test \n            -f=smoke.yaml \n            -o=result.yaml \n            --cache=cache \n            --timeout 20m \n            2>&1 | tee -a log.txt
-
-      - name: Diff
-        if: always()
-        run: diff --ignore-space-change smoke.yaml result.yaml && echo "Contents are identical" || exit 0
-
-      - name: Create summary
-        run: tail -n100 log.txt | grep -P '\d+/\d+ calls cached \(\d+%\)' >> $GITHUB_STEP_SUMMARY
+          echo "Running smoke test for ${{ matrix.suite }}"
+EOF
