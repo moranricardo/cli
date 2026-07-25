@@ -17,8 +17,8 @@ jobs:
     steps:
       - id: gather
         run: |
-          URL="https://api.github.com/repos/dependabot/smoke-tests/contents/tests"
-          DATA="$(gh api $URL | jq -r '.[].name'  | sed 's/smoke-//' | sed 's/.yaml$//' | jq -R | jq -sc)"
+          URL="https://api.github.com/repos/dependabot/smoke-tests/git/trees/main?recursive=1"
+          DATA="$(curl -s $URL | jq -r '.tree[] | select(.path | startswith("tests/smoke-")) | .path' | sed 's/tests\/smoke-//' | sed 's/\.yaml$//' | jq -R . | jq -sc .)"
           echo "suite=$DATA" >> $GITHUB_OUTPUT
     outputs:
       suites: ${{ steps.gather.outputs.suite }}
