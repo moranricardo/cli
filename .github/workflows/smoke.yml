@@ -1,7 +1,7 @@
 name: Smoke
 
 on:
-  workflow_dispatch: {} {}
+  workflow_dispatch:
   pull_request:
     branches: ["main"]
 
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-          PROMOTE: true
+  PROMOTE: true
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
