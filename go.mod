@@ -4,13 +4,13 @@ go 1.26.5
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/docker/cli v27.3.1+incompatible
-	github.com/docker/docker v27.3.1+incompatible
+	github.com/docker/cli v29.6.2+incompatible
+	github.com/docker/docker v28.5.2+incompatible
 	github.com/google/go-containerregistry v0.20.2
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
 	github.com/hexops/gotextdiff v1.0.3
-	github.com/moby/go-archive v0.1.0
-	github.com/moby/moby v27.3.1+incompatible
+	github.com/moby/go-archive v0.2.1
+	github.com/moby/moby v28.5.2+incompatible
 	github.com/moby/sys/signal v0.7.1
 	github.com/spf13/cobra v1.8.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -18,33 +18,35 @@ require (
 )
 
 require (
-	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
-	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
+	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/containerd/errdefs v1.0.0 // indirect
+	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/distribution v2.8.2+incompatible // indirect
-	github.com/docker/docker-credential-helpers v0.7.0 // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/distribution v2.8.3+incompatible // indirect
+	github.com/docker/docker-credential-helpers v0.9.8 // indirect
+	github.com/docker/go-connections v0.8.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
-	github.com/moby/patternmatcher v0.6.0 // indirect
-	github.com/moby/sys/sequential v0.6.0 // indirect
-	github.com/moby/sys/user v0.4.0 // indirect
+	github.com/moby/patternmatcher v0.6.1 // indirect
+	github.com/moby/sys/atomicwriter v0.1.0 // indirect
+	github.com/moby/sys/sequential v0.7.0 // indirect
+	github.com/moby/sys/user v0.4.1 // indirect
 	github.com/moby/sys/userns v0.1.0 // indirect
-	github.com/moby/term v0.0.0-20221205130635-1aeaba878587 // indirect
+	github.com/moby/term v0.5.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vbatts/tar-split v0.11.3 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
@@ -53,8 +55,6 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.44.0 // indirect
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
-	golang.org/x/mod v0.13.0 // indirect
-	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.4.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
