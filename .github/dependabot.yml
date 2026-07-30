@@ -1,39 +1,16 @@
 version: 2
 updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "sunday"
-      time: "16:00"
-    groups:
-      all:
-        patterns:
-          - "*"
-  - package-ecosystem: "gomod"
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-      time: "16:00"
-    allow:
-      # Allow both direct and indirect updates for all packages
-      - dependency-type: "all"
-    groups:
-      docker:
-        patterns:
-          - "github.com/docker/*"
-          - "github.com/moby/*"
-      all:
-        patterns:
-          - "*"
-  - package-ecosystem: "devcontainers"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-      time: "16:00"
-    groups:
-      all:
-        patterns:
-          - "*"
+    open-pull-requests-limit: 3
