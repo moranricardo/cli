@@ -1,9 +1,10 @@
 name: Smoke
 
-on:
+'on':
   workflow_dispatch:
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -14,14 +15,15 @@ env:
 jobs:
   suites:
     runs-on: ubuntu-latest
+    outputs:
+      suites: ${{ steps.gather.outputs.suite }}
     steps:
       - id: gather
         run: |
+          set -euo pipefail
           URL="https://api.github.com/repos/dependabot/smoke-tests/git/trees/main?recursive=1"
-          DATA="$(curl -s $URL | jq -r '.tree[] | select(.path | startswith("tests/smoke-")) | .path' | sed 's/tests\/smoke-//' | sed 's/\.yaml$//' | jq -R . | jq -sc .)"
-          echo "suite=$DATA" >> $GITHUB_OUTPUT
-    outputs:
-      suites: ${{ steps.gather.outputs.suite }}
+          DATA="$(curl -sS "$URL" | jq -r '.tree[] | select(.path | startswith("tests/smoke-")) | .path' | sed 's/tests\/smoke-//' | sed 's/\.yaml$//' | jq -R . | jq -sc .)"
+          echo "suite=$DATA" >> "$GITHUB_OUTPUT"
 
   smoke:
     runs-on: ubuntu-latest
@@ -29,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.suites.outputs.suites) }}
+        suite: ${{ fromJson(needs.suites.outputs.suites) }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
@@ -45,11 +47,11 @@ jobs:
         run: |
           gh run download --repo dependabot/smoke-tests --name "cache-${{ matrix.suite }}" --dir cache || true
 
-      - name: ${{ matrix.suite }}
+      - name: Run suite (${{ matrix.suite }})
         env:
           LOCAL_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -o pipefail
+          set -euo pipefail
           gh api "repos/dependabot/smoke-tests/contents/tests/smoke-${{ matrix.suite }}.yaml" -H "Accept: application/vnd.github.raw" > smoke.yaml
           go run cmd/dependabot/dependabot.go test \
             -f=smoke.yaml \
@@ -64,4 +66,8 @@ jobs:
         run: diff --ignore-space-change smoke.yaml result.yaml && echo "Contents are identical" || exit 0
 
       - name: Create summary
-        run: tail -n100 log.txt | grep -P '\d+/\d+ calls cached \(\d+%\)' >> $GITHUB_STEP_SUMMARY
+        if: always()
+        run: |
+          if [ -f log.txt ]; then
+            tail -n100 log.txt | grep -P '\d+/\d+ calls cached \(\d+%\)' >> "$GITHUB_STEP_SUMMARY" || true
+          fi
