@@ -1,6 +1,6 @@
 name: Gerrit Automated Audit
 
-on:
+"on":
   schedule:
     - cron: '0 */6 * * *' # Se ejecuta automáticamente cada 6 horas
   workflow_dispatch:      # Permite activarlo manualmente desde GitHub
