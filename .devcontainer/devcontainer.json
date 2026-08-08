@@ -1,16 +1,20 @@
 {
-  "name": "Dependabot CLI",
-  "image": "mcr.microsoft.com/devcontainers/go:1.26",
+  "name": "Mi Entorno Node & Docker",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker": {
-      "moby": false
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
     },
-    "ghcr.io/devcontainers/features/github-cli": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {
+      "version": "latest",
+      "moby": true
+    }
   },
   "customizations": {
     "vscode": {
+      "settings": {},
       "extensions": [
-        "golang.go"
+        "dbaeumer.vscode-eslint"
       ]
     }
   }
