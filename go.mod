@@ -9,7 +9,7 @@ require (
 	github.com/google/go-containerregistry v0.21.8
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
 	github.com/hexops/gotextdiff v1.0.3
-	github.com/moby/go-archive v0.3.2
+	github.com/moby/go-archive v0.3.3
 	github.com/moby/moby v28.5.2+incompatible
 	github.com/moby/sys/signal v0.7.1
 	github.com/spf13/cobra v1.10.2
