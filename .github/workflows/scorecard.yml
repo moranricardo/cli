@@ -7,9 +7,7 @@ on: # yamllint disable-line rule:truthy
   schedule:
     - cron: '00 13 * * 2'
   workflow_dispatch:
-
 permissions: read-all
-
 jobs:
   analysis:
     name: Scorecard analysis
@@ -19,28 +17,20 @@ jobs:
       id-token: write
       contents: read
       actions: read
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8e # v4.3.0
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
-
-      - name: Run analysis
-        uses: ossf/scorecard-action@v2.4.4
+      - uses: ossf/scorecard-action@v2.4.4
         with:
           results_file: results.sarif
           results_format: sarif
           publish_results: true
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@ea937167476d4a5ca0eda504a44384f369ab52d2d # v4.4.3
+      - uses: actions/upload-artifact@v4
         with:
           name: SARIF file
           path: results.sarif
           retention-days: 5
-
-      - name: Upload to code-scanning
-        uses: github/codeql-action/upload-sarif@v3
+      - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
