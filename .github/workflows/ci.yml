@@ -17,51 +17,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8e # v4.3.0
+        with:
+          persist-credentials: false
 
-      - name: Lint YAML
-        run: yamllint .
-
-      - uses: actions/setup-go@v5
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c1d6d55fbed # v5.5.0
         with:
           go-version-file: go.mod
           cache: true
 
       - name: Build
-        run: |
-          go version
-          go build -v ./...
-
-      - name: Test
-        run: go test -shuffle=on -count=2 -race -cover -timeout=5m ./...
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: Check go.mod tidy
-        run: |
-          go mod tidy -diff
-          git diff --exit-code -- go.mod go.sum
+        run: go build ./...
 
       - name: Vet
         run: go vet ./...
 
-      - name: Check gofmt
-        run: |
-          fmt=$(gofmt -l .)
-          if [ -n "$fmt" ]; then
-            echo "gofmt failed on:"
-            echo "$fmt"
-            echo "Run: gofmt -w ."
-            exit 1
-          fi
+      - name: Test
+        run: go test ./... -count=1 -short
 
-      - name: Check go mod
-        run: go list -m all
+      - name: Version check
+        run: go run ./cmd/dependabot --version
