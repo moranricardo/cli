@@ -1,5 +1,4 @@
 name: CI Build + Unit Test
-
 on: # yamllint disable-line rule:truthy
   push:
     branches: ["main"]
@@ -8,7 +7,6 @@ on: # yamllint disable-line rule:truthy
 
 permissions:
   contents: read
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -18,12 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8e # v4.3.0
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c1d6d55fbed # v5.5.0
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache: true
