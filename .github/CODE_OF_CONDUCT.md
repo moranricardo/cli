@@ -43,14 +43,17 @@ an individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the maintainers responsible for enforcement at **152412958+moranricardo@users.noreply.github.com**
-(correo de seguridad privado de GitHub). All complaints will be reviewed and investigated
-promptly and fairly.
+reported to the maintainers responsible for enforcement at
+152412958+moranricardo@users.noreply.github.com.
+All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
 reporter of any incident.
 
 ## Enforcement Guidelines
+
+Community leaders will follow these Community Impact Guidelines in determining
+the consequences of any action they deem in violation of this Code of Conduct:
 
 1. **Correction:** Use of inappropriate language. A private written warning.
 2. **Warning:** A violation through a single incident or series.
