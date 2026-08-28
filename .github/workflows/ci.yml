@@ -1,39 +1,32 @@
 name: CI Build + Unit Test
-on: # yamllint disable-line rule:truthy
+on:
   push:
     branches: ["main"]
   pull_request:
   merge_group:
-
 permissions:
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache: true
-
       - name: Build
         run: go build ./...
-
       - name: Vet
         run: go vet ./...
-
       - name: Test
         run: go test ./... -count=1 -short
-
       - name: Version check
         run: go run ./cmd/dependabot --version
