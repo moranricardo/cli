@@ -1,6 +1,6 @@
 name: Gerrit Automated Audit
 
-on:
+on: # yamllint disable-line rule:truthy
   schedule:
     - cron: '0 */6 * * *' # cada 6 horas
   workflow_dispatch:
