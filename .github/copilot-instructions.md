@@ -1,99 +1,29 @@
-# Dependabot CLI — Copilot Instructions
+# Dependabot CLI — Copilot Instructions (forked by moranricardo)
 
-## Architecture Overview
+## What is this?
+Go CLI that orchestrates Dependabot update jobs via Docker. Does NOT resolve deps itself.
+It runs 3 containers: Proxy + Updater + Fake API Server. Flow: CLI -> proxy+updater on isolated networks -> updater calls fake API -> YAML output.
 
-This is the **Dependabot CLI** (`dependabot`), a Go tool that orchestrates Dependabot update jobs via Docker containers. It does **not** perform dependency resolution itself — it coordinates three containers:
+`go.mod`: `github.com/dependabot/cli`, Go 1.26.5
 
-1. **Proxy** (`ghcr.io/dependabot/proxy`) — intercepts all updater network traffic, injects credentials without exposing them to the updater, and optionally caches requests.
-2. **Updater** (`ghcr.io/dependabot/dependabot-updater-<ecosystem>`) — runs the actual dependency update logic (from [dependabot-core](https://github.com/dependabot/dependabot-core)).
-3. **Fake API server** (`internal/server/api.go`) — a local HTTP server that captures updater API calls (create PR, close PR, etc.) for output or test assertion.
+## Layout
+- `cmd/dependabot/` — entrypoint, `internal/cmd/` → Cobra: `update`, `test`, `graph`, `version`
+- `internal/infra/` — Docker orchestration: `run.go`, `updater.go`, `proxy.go`, `network.go`, `config.go`, `cadetails.go`
+- `internal/model/` — types for jobs, creds, smoke tests, API payloads. Kebab-case YAML tags `yaml:"package-manager"`
+- `internal/server/` — fake API `api.go` + secure input `input.go`
+- `testdata/` — fixtures + `scripts/*.txt` (rsc.io/script)
 
-Data flow: CLI parses input → starts proxy + updater containers on isolated Docker networks → updater calls back to the fake API → CLI collects results as YAML.
-
-## Project Layout
-
-- `cmd/dependabot/` — entrypoint (`main`), delegates to `internal/cmd/`
-- `cmd/dependabot/internal/cmd/` — Cobra commands: `update`, `test`, `graph`, `version`, plus `root.go` for shared flags
-- `internal/infra/` — Docker container orchestration: `run.go` (main flow), `updater.go`, `proxy.go`, `network.go`, `config.go`
-- `internal/model/` — data types for jobs, credentials, smoke tests, API payloads. Shared across all packages.
-- `internal/server/` — fake API server (`api.go`) and secure input server (`input.go`)
-- `testdata/` — YAML fixtures and `scripts/*.txt` for scripttest-based integration tests
-
-## Key Conventions
-
-### YAML/JSON Model Tags
-
-Models use **kebab-case** YAML tags (`yaml:"package-manager"`) and matching JSON tags. When adding new fields:
-
-- Add `omitempty` initially to maintain backward compatibility with existing smoke tests
-- See the comment block at the top of `internal/model/job.go` for the full add/remove lifecycle
-
-### Command Pattern
-
-Each subcommand (`update`, `test`, `graph`) follows the same pattern:
-
-- Define a `NewXCommand() *cobra.Command` constructor
-- Call `infra.Run(infra.RunParams{...})` with appropriate parameters
-- Register via `init()` with `rootCmd.AddCommand()`
-- The `update` and `graph` commands share `extractInput()` and `processInput()` from `update.go`
-
-### Credentials Handling
-
-- `$`-prefixed values in YAML input are expanded from environment variables at runtime
-- `LOCAL_GITHUB_ACCESS_TOKEN` and `LOCAL_AZURE_ACCESS_TOKEN` are auto-injected into credentials when set
-- Credentials are **never** passed directly to the updater; they go through the proxy which injects them into outbound requests
-- `checkCredAccess()` in `run.go` blocks tokens with write access to GitHub API for security
-
-### Container Networking
-
-Two Docker bridge networks are created per run (`network.go`):
-
-- **no-internet** (internal) — updater can only reach the proxy
-- **internet** — proxy can reach external services
-
-The updater is connected only to no-internet; the proxy bridges both.
+## Critical Conventions
+1. **Model tags**: kebab-case yaml + json. Add `omitempty` first for backward compat. See comment in `internal/model/job.go` for lifecycle.
+2. **Command pattern**: `NewXCommand() *cobra.Command` -> calls `infra.Run(infra.RunParams{...})` -> `init()` registers. `update` and `graph` share `extractInput()`/`processInput()`.
+3. **Credentials**: `$VAR` expanded from env. `LOCAL_GITHUB_ACCESS_TOKEN` auto-injected. Never pass creds to updater directly — go via proxy. `checkCredAccess()` blocks write tokens.
+4. **Networking**: 2 bridge networks per run: `no-internet` (internal, updater only) and `internet` (proxy only).
+5. **Ecosystems**: Add in `packageManagerLookup` map in `internal/infra/run.go` (`go_modules` -> `gomod`).
 
 ## Build & Test
-
 ```bash
-# Build
 go build ./cmd/dependabot
-
-# Run all unit tests
-go test ./...
-
-# Run script-based integration tests (require Docker)
-go test ./cmd/dependabot/ -count=1
-
-# Run a specific script test by name pattern
+go test ./... -race
+go test ./cmd/dependabot/ -count=1  # script tests need Docker
 script/e2e <pattern>
-
-# Install from source
-go install github.com/dependabot/cli/cmd/dependabot@latest
-```
-
-### Script Tests (`testdata/scripts/*.txt`)
-
-These use Go's `rsc.io/script` framework (see `cmd/dependabot/dependabot_test.go`). Each `.txt` file:
-
-- Builds a dummy Docker image inline (via `-- Dockerfile --` sections)
-- Runs `dependabot` commands and asserts on stdout/stderr
-- Uses `!` prefix for expected-failure commands
-
-### Test Mocking Pattern
-
-The `test` command uses a package-level `var executeTestJob = infra.Run` that tests override to capture `RunParams` without running Docker (see `test_test.go`).
-
-## Smoke Tests
-
-Smoke tests (`model.SmokeTest`) define **input + expected output** for reproducible update jobs:
-
-- `input:` — job definition + credentials
-- `output:` — array of expected API calls (`create_pull_request`, `update_dependency_list`, etc.)
-- Generate with: `dependabot update <pm> <repo> -o smoke-test.yml`
-- Run with: `dependabot test -f smoke-test.yml --cache ./tmp/cache`
-- The test runner auto-generates `ignore-conditions` to pin dependency versions for reproducibility
-
-## Package Manager Ecosystem Mapping
-
-The `packageManagerLookup` map in `internal/infra/run.go` maps package manager names (e.g., `go_modules`) to updater image suffixes (e.g., `gomod`). When adding ecosystem support, update this map.
+Cuando hagas `git push` debe salir `3f3bf10..XXXX main -> main`.
