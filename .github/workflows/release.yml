@@ -1,46 +1,49 @@
 name: Release binary builder
-
-on: # yamllint disable-line rule:truthy
+on:
   release:
     types: [published]
-
 permissions:
   attestations: write
   contents: write
   id-token: write
   packages: write
-
 jobs:
   releases-matrix:
-    name: Release Go Binary
+    name: ${{ matrix.goos }}-${{ matrix.goarch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goos: [linux, windows, darwin]
-        goarch: ["386", amd64, arm64]
-        exclude:
-          - goarch: "386"
-            goos: darwin
-          - goarch: arm64
-            goos: windows
+        include:
+          - goos: linux
+            goarch: arm
+            goarm: 7
+          - goos: linux
+            goarch: arm64
+          - goos: linux
+            goarch: amd64
+          - goos: windows
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: wangyoucao577/go-release-action@279495102627de7960cbc33434ab01a12bae144b # v1.55
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: wangyoucao577/go-release-action@v1.55
         id: go_release
         with:
           goversion: go.mod
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
+          goarm: ${{ matrix.goarm }}
           binary_name: dependabot
           project_path: cmd/dependabot
-          ldflags: >-
-            -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
-
-      - uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+          ldflags: -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
+      - uses: actions/attest-build-provenance@v2
         with:
-          subject-path: |
-            ${{ steps.go_release.outputs.release_asset_dir }}/*
-            dependabot-${{ github.ref_name}}-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
-            dependabot-${{ github.ref_name}}-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          subject-path: ${{ steps.go_release.outputs.release_asset_dir }}/*
