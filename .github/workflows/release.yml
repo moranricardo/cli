@@ -1,5 +1,5 @@
 name: Release binary builder
-on: # yamllint disable-line rule:truthy
+on:
   release:
     types: [published]
 permissions:
@@ -28,22 +28,25 @@ jobs:
           - goos: darwin
             goarch: amd64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache: true
-      - uses: wangyoucao577/go-release-action@v1.55
+      - uses: wangyoucao577/go-release-action@v1
         id: go_release
         with:
-          goversion: go.mod
+          go-version-file: go.mod
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goarm: ${{ matrix.goarm }}
           binary_name: dependabot
-          project_path: cmd/dependabot
+          project_path:./cmd/dependabot
           ldflags: -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
-      - uses: actions/attest-build-provenance@v2
+          extra_files: LICENSE README.md
+          sha256sum: true
+      - name: Attest provenance
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: ${{ steps.go_release.outputs.release_asset_dir }}/*
