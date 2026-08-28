@@ -2,37 +2,37 @@ name: Scorecard analysis
 
 on: # yamllint disable-line rule:truthy
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   schedule:
-    - cron: '22 17 * * 1' # https://crontab.guru/#22_17_*_*_1
+    - cron: '22 17 * * 1'
   workflow_dispatch:
 
-permissions:
-  actions: read
-  checks: read
-  contents: read
-  issues: read
-  pull-requests: read
-  statuses: read
-  # Needed for SARIF upload
-  security-events: write
+permissions: read-all
 
 jobs:
   analysis:
     name: Scorecard analysis
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8e # v4.3.0
         with:
           persist-credentials: false
 
-      - uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
+      - name: Run Scorecard analysis
+        uses: ossf/scorecard-action@4ed4131f56e31d3a9b3f6dba4c0d13e0951d9a # v2.4.2
         with:
           results_file: results.sarif
           results_format: sarif
+          publish_results: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: github/codeql-action/upload-sarif@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4.37.4
+      - name: Upload SARIF to Code Scanning
+        uses: github/codeql-action/upload-sarif@49c5498669e3d9b1e47c6f8ad2a8f305c9cc014d # v3.29.5
         with:
           sarif_file: results.sarif
