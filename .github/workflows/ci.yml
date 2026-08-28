@@ -9,43 +9,59 @@ on: # yamllint disable-line rule:truthy
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v4
 
-      # yamllint is installed in GitHub Actions base runner image: https://github.com/adrienverge/yamllint/pull/588
-      - run: yamllint .
+      - name: Lint YAML
+        run: yamllint .
 
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
 
       - name: Build
-        run: go version && go build -v ./...
+        run: |
+          go version
+          go build -v ./...
 
       - name: Test
-        # -count=2 ensures that test fixtures cleanup after themselves
-        # because any leftover state will generally cause the second run to fail.
         run: go test -shuffle=on -count=2 -race -cover -timeout=5m ./...
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
 
-      - run: go mod tidy -diff
-
-      - run: go vet ./...
-
-      - name: Check gofmt passes
+      - name: Check go.mod tidy
         run: |
-          if [ -n "$(gofmt -l .)" ]; then
-            echo "gofmt failed, please run gofmt -w ."
+          go mod tidy -diff
+          git diff --exit-code -- go.mod go.sum
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Check gofmt
+        run: |
+          fmt=$(gofmt -l .)
+          if [ -n "$fmt" ]; then
+            echo "gofmt failed on:"
+            echo "$fmt"
+            echo "Run: gofmt -w ."
             exit 1
           fi
+
+      - name: Check go mod
+        run: go list -m all
