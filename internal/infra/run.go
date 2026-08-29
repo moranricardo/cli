@@ -11,6 +11,7 @@ import (
 	"maps"
 	"net/http"
 	"os"
+	"path/filepath"
 	"os/signal"
 	"regexp"
 	"strings"
@@ -114,7 +115,17 @@ func (p *RunParams) Validate() error {
 	return nil
 }
 
+func shouldUseLite(params RunParams) bool {
+	if os.Getenv("DEPENDABOT_LOCAL") == "1" { return true }
+	if _, err := os.Stat(filepath.Join(params.LocalDir, ".e6-lite")); err == nil { return true }
+	if _, err := os.Stat(".e6-lite"); err == nil { return true }
+	return false
+}
+
 func Run(params RunParams) error {
+	if shouldUseLite(params) {
+		return RunLite(params)
+	}
 	if err := params.Validate(); err != nil {
 		return err
 	}
