@@ -23,7 +23,6 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-
     - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -34,7 +33,6 @@ updates:
             - "github-actions"
     commit-message:
       prefix: "ci"
-
     - package-ecosystem: "docker"
     directory: "/"
     schedule:
