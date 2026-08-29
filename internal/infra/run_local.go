@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Ricardo Moran (moranricardo) - Local Runner
+// Original implementation for docker-less environments (Termux, etc)
+// Licensed under MIT same as github.com/dependabot/cli
+
 package infra
 
 import (
@@ -10,7 +14,9 @@ import (
 	"github.com/dependabot/cli/internal/server"
 )
 
-func RunLite(params RunParams) error {
+// RunLocal executes update without Docker using updater-lite.sh
+// Author: Ricardo Moran
+func RunLocal(params RunParams) error {
 	if err := params.Validate(); err != nil {
 		return err
 	}
