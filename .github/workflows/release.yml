@@ -38,7 +38,7 @@ jobs:
           goarch: ${{ matrix.goarch }}
           goarm: ${{ matrix.goarm }}
           binary_name: dependabot
-          project_path:./cmd/dependabot
+          project_path: ./cmd/dependabot
           ldflags: -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
           extra_files: LICENSE README.md
           retry: 10
