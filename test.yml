@@ -1,0 +1,13 @@
+input:
+    job:
+        command: update
+        package-manager: go_modules
+        allowed-updates:
+            - update-type: all
+        source:
+            provider: github
+            repo: dependabot/cli
+            directories:
+                - /
+            hostname: github.com
+            api-endpoint: https://api.github.com
