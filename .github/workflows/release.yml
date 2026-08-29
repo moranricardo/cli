@@ -2,7 +2,6 @@ name: Release
 on:
   release:
     types: [published]
-
 permissions:
   contents: write
 
@@ -11,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
+      fail-fast: false
       matrix:
         include:
           - goos: linux
@@ -19,20 +19,19 @@ jobs:
             goarch: arm64
           - goos: linux
             goarch: arm
-            goarm: '7'
+            goarm: 7
           - goos: darwin
             goarch: amd64
           - goos: darwin
             goarch: arm64
+          - goos: windows
+            goarch: amd64
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
-          cache: true
-      - name: Build linux/arm v7
-        if: matrix.goarm!= ''
-        uses: wangyoucao577/go-release-action@v1.53
+          go-version: stable
+      - uses: wangyoucao577/go-release-action@v1.53
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
@@ -42,16 +41,4 @@ jobs:
           project_path:./cmd/dependabot
           ldflags: -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
           extra_files: LICENSE README.md
-          sha256sum: true
-      - name: Build others
-        if: matrix.goarm == ''
-        uses: wangyoucao577/go-release-action@v1.53
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          goos: ${{ matrix.goos }}
-          goarch: ${{ matrix.goarch }}
-          binary_name: dependabot
-          project_path:./cmd/dependabot
-          ldflags: -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
-          extra_files: LICENSE README.md
-          sha256sum: true
+          retry: 10
