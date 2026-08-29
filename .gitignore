@@ -6,3 +6,4 @@ out.yaml
 dependabot.exe
 .env
 *.tar.gz
+updater-lite.sh
