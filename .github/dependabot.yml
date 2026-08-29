@@ -1,6 +1,6 @@
 version: 2
 updates:
-    - package-ecosystem: "gomod"
+  - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -10,33 +10,33 @@ updates:
     groups:
       go-patch-and-minor:
         patterns:
-                    - "*"
+          - "*"
         update-types:
-                    - "minor"
-                    - "patch"
+          - "minor"
+          - "patch"
     ignore:
-            - dependency-name: "*"
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
     labels:
-            - "dependencies"
-            - "go"
+      - "dependencies"
+      - "go"
     commit-message:
       prefix: "chore"
       include: "scope"
-    - package-ecosystem: "github-actions"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
     labels:
-            - "dependencies"
-            - "github-actions"
+      - "dependencies"
+      - "github-actions"
     commit-message:
       prefix: "ci"
-    - package-ecosystem: "docker"
+  - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
-            - "dependencies"
-            - "docker"
+      - "dependencies"
+      - "docker"
