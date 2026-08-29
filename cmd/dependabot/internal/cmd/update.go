@@ -84,7 +84,7 @@ func NewUpdateCommand() *cobra.Command {
 				writer = os.Stdout
 			}
 
-			if err := infra.Run(infra.RunParams{
+			runParams := infra.RunParams{
 				CacheDir:                    flags.cache,
 				CollectorConfigPath:         flags.collectorConfigPath,
 				CollectorImage:              collectorImage,
@@ -107,7 +107,12 @@ func NewUpdateCommand() *cobra.Command {
 				Writer:                      writer,
 				ApiUrl:                      flags.apiUrl,
 				UpdaterEnvironmentVariables: flags.updaterEnvironmentVariables,
-			}); err != nil {
+				}
+				if _, err := os.Stat(".e6-lite"); err == nil || os.Getenv("DEPENDABOT_LOCAL") == "1" {
+					if err := infra.RunLite(runParams); err != nil {
+						return err
+					}
+				} else if err := infra.Run(runParams); err != nil {
 				if errors.Is(err, context.DeadlineExceeded) {
 					log.Fatalf("update timed out after %s", flags.timeout)
 				}
