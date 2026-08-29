@@ -7,3 +7,7 @@ dependabot.exe
 .env
 *.tar.gz
 updater-lite.sh
+.e6-lite
+internal/infra/run-lite.go
+run-lite.go
+.e6-lite
