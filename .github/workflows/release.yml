@@ -30,7 +30,7 @@ jobs:
           go-version: '1.24'
           cache: true
       - name: Build linux/arm v7
-        if: matrix.goarm!= ''
+        if: matrix.goarm != ''
         uses: wangyoucao577/go-release-action@v1.53
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -38,7 +38,7 @@ jobs:
           goarch: ${{ matrix.goarch }}
           goarm: ${{ matrix.goarm }}
           binary_name: dependabot
-          project_path:./cmd/dependabot
+          project_path: ./cmd/dependabot
           ldflags: -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
           extra_files: LICENSE README.md
           sha256sum: true
@@ -50,7 +50,7 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           binary_name: dependabot
-          project_path:./cmd/dependabot
+          project_path: ./cmd/dependabot
           ldflags: -X github.com/dependabot/cli/cmd/dependabot/internal/cmd.version=${{ github.event.release.tag_name }}
           extra_files: LICENSE README.md
           sha256sum: true
