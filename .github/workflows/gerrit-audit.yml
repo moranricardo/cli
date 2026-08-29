@@ -1,8 +1,7 @@
 name: Gerrit Automated Audit
-
-on: # yamllint disable-line rule:truthy
+on:
   schedule:
-    - cron: '0 */6 * * *' # cada 6 horas
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -18,10 +17,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'npm'
