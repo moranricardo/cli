@@ -1,19 +1,23 @@
-## Maintainer docs
+# Maintainer Docs (Lite Edition)
 
-This documentation is targeting maintainers of the Dependabot CLI.
+Guía de publicación y mantenimiento de versiones para el CLI nativo ligero.
 
-### Creating a release
+## Crear un Release Local / Tag
 
-- Go to https://github.com/dependabot/cli/releases
-- Click `Draft a new release`
-- Click `Choose a tag`
-- In the input, type `v1.<minor>.<patch>` choosing the next minor or patch
-   - It really doesn't matter much which one you bump, but if it's a fix to the previous release patch makes sense.
-   - Don't bump the major version unless there were large breaking changes.
--  Click `Generate release notes`
-   - If you want, you can delete lines that are minor like changes to workflows, README typo fixes, etc.  
--  Click `Publish release`
--  Monitor the [Release binary builder](https://github.com/dependabot/cli/actions/workflows/release.yml)https://github.com/dependabot/cli/actions/workflows/release.yml, it sometimes fails and needs to re-run
+1. Verificar el árbol de trabajo:
+   git status
 
- If anything goes wrong, like you've typed in something non-sensical as the version number by mistake, just delete the release/tag and create a new one.
- 
+2. Compilar y probar el binario nativo:
+   go build -o dependabot ./cmd/dependabot
+   ./dependabot --version
+
+3. Crear el tag anotado de la versión:
+   git tag -a v0.X.Y-lite -m "release: versión v0.X.Y-lite nativa"
+
+4. Publicar cambios y tags en GitHub:
+   git push origin main --tags
+
+## Manejo de errores en versiones
+
+- Eliminar tag local: git tag -d v0.X.Y-lite
+- Eliminar tag remoto: git push origin :refs/tags/v0.X.Y-lite
