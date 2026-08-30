@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/dependabot/cli/internal/server"
 )
@@ -48,6 +49,13 @@ func RunLite(params RunParams) error {
 	}
 	absRepo, _ := filepath.Abs(repoDir)
 
+	verbose := os.Getenv("VERBOSE") == "1" || os.Getenv("DEPENDABOT_VERBOSE") == "1"
+	for _, e := range os.Environ() {
+		if strings.Contains(e, "verbose=1") || strings.Contains(e, "VERBOSE") {
+			verbose = true
+		}
+	}
+
 	env := append(os.Environ(),
 		fmt.Sprintf("DEPENDABOT_API_URL=%s", apiUrl),
 		fmt.Sprintf("DEPENDABOT_PACKAGE_MANAGER=%s", params.Job.PackageManager),
@@ -57,25 +65,35 @@ func RunLite(params RunParams) error {
 	switch params.Job.PackageManager {
 	case "go_modules":
 		fmt.Printf(">> [Native Go] Checking updates in %s\n", absRepo)
+		if verbose {
+			runCmd(ctx, absRepo, env, "go", "version")
+		}
+		// Dry run: solo lista
 		runCmd(ctx, absRepo, env, "go", "list", "-m", "-u", "all")
-		fmt.Println(">> [Native Go] Updating modules...")
-		runCmd(ctx, absRepo, env, "go", "get", "-u", "./...")
-		runCmd(ctx, absRepo, env, "go", "mod", "tidy")
 
-		reportPR(apiUrl, absRepo)
-
+		// Solo actualiza si no es dry-run
+		if os.Getenv("DRY_RUN") != "1" {
+			fmt.Println(">> [Native Go] Updating modules (safe: go get -u)...")
+			beforeMod, _ := os.ReadFile(filepath.Join(absRepo, "go.mod"))
+			runCmd(ctx, absRepo, env, "go", "get", "-u", "./...")
+			runCmd(ctx, absRepo, env, "go", "mod", "tidy")
+			afterMod, _ := os.ReadFile(filepath.Join(absRepo, "go.mod"))
+			if verbose && string(beforeMod) != string(afterMod) {
+				fmt.Println(">> go.mod diff detected, reporting PR...")
+			}
+			reportPR(apiUrl, absRepo)
+		} else {
+			fmt.Println(">> DRY_RUN=1 - skipping go get, no files modified")
+		}
 	case "npm_and_yarn", "npm":
 		fmt.Printf(">> [Native npm] Checking updates in %s\n", absRepo)
 		runCmd(ctx, absRepo, env, "npm", "outdated")
-		fmt.Println(">> [Native npm] Updating dependencies...")
-		runCmd(ctx, absRepo, env, "npm", "update")
-
-	case "pip", "pipenv":
-		fmt.Printf(">> [Native Python] Checking updates in %s\n", absRepo)
-		runCmd(ctx, absRepo, env, "pip", "list", "--outdated")
-
+		if os.Getenv("DRY_RUN") != "1" {
+			fmt.Println(">> [Native npm] Updating dependencies...")
+			runCmd(ctx, absRepo, env, "npm", "update")
+		}
 	default:
-		fmt.Printf(">> [Native Fallback] No custom runner for %s, listing directory\n", params.Job.PackageManager)
+		fmt.Printf(">> [Native Fallback] No runner for %s, listing dir\n", params.Job.PackageManager)
 		runCmd(ctx, absRepo, env, "ls", "-la")
 	}
 
@@ -89,36 +107,33 @@ func runCmd(ctx context.Context, dir string, env []string, name string, args ...
 	cmd.Env = env
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	_ = cmd.Run()
+	if err := cmd.Run(); err != nil {
+		fmt.Printf(">> [warn] %s %s failed: %v\n", name, strings.Join(args, " "), err)
+	}
 }
 
 func reportPR(apiUrl, repoDir string) {
 	goMod, errMod := os.ReadFile(filepath.Join(repoDir, "go.mod"))
 	goSum, _ := os.ReadFile(filepath.Join(repoDir, "go.sum"))
-
 	if errMod != nil {
 		return
 	}
-
 	commitSHA := "main"
 	cmdSHA := exec.Command("git", "rev-parse", "HEAD")
 	cmdSHA.Dir = repoDir
 	if out, err := cmdSHA.Output(); err == nil {
 		commitSHA = string(bytes.TrimSpace(out))
 	}
-
 	payload := PRPayload{}
 	payload.Data.BaseCommitSHA = commitSHA
 	payload.Data.UpdatedDependencyFiles = []UpdatedDependencyFile{
 		{Name: "go.mod", Content: string(goMod)},
 		{Name: "go.sum", Content: string(goSum)},
 	}
-
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return
 	}
-
 	fmt.Printf(">> Reporting PR to API Proxy (%s)...\n", apiUrl)
 	resp, err := http.Post(apiUrl+"/create_pull_request", "application/json", bytes.NewBuffer(body))
 	if err != nil {
