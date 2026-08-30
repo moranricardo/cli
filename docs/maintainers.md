@@ -1,23 +1,27 @@
-# Maintainer Docs (Lite Edition)
+## Maintainer docs (Fork Lite v0.5)
 
-Guía de publicación y mantenimiento de versiones para el CLI nativo ligero.
+This documentation is targeting maintainers of the Lite fork.
 
-## Crear un Release Local / Tag
+### Creating a lite release
 
-1. Verificar el árbol de trabajo:
+1. Limpia el árbol:
    git status
+   go build -o dependabot ./cmd/dependabot && ./dependabot --help
 
-2. Compilar y probar el binario nativo:
-   go build -o dependabot ./cmd/dependabot
-   ./dependabot --version
+2. Tag local lite:
+   git tag -a v0.5.1-lite -m "chore: clean working tree for v0.5.1-lite"
+   git tag -a v0.5.2-lite -m "fix: native go runner no storage pollution"
 
-3. Crear el tag anotado de la versión:
-   git tag -a v0.X.Y-lite -m "release: versión v0.X.Y-lite nativa"
-
-4. Publicar cambios y tags en GitHub:
+3. Push:
    git push origin main --tags
 
-## Manejo de errores en versiones
+4. Release en GitHub:
+   - Go to https://github.com/moranricardo/cli/releases
+   - Draft a new release -> Choose tag `v0.5.x-lite`
+   - Generate release notes, borra cambios menores de workflows/README
+   - Publish. No dependes del workflow `release.yml` oficial, tu binario es nativo.
 
-- Eliminar tag local: git tag -d v0.X.Y-lite
-- Eliminar tag remoto: git push origin :refs/tags/v0.X.Y-lite
+### Checklist antes de push
+- [ ] `find cmd -type f -name "*.go" | sort` solo 4 archivos (sin `cmd/dependabot/cmd/`)
+- [ ] `internal/infra/run-lite.go` no escribe en storage no deseado
+- [ ] `docs/debugging.md` menciona modo `--local --debug`
