@@ -1,65 +1,22 @@
 package cmd
 
 import (
-	"log"
 	"os"
-	"time"
 
-	"github.com/dependabot/cli/internal/infra"
-
-	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
 )
 
-type SharedFlags struct {
-	file                        string
-	cache                       string
-	debugging                   bool
-	flamegraph                  bool
-	proxyCertPath               string
-	collectorConfigPath         string
-	extraHosts                  []string
-	output                      string
-	pullImages                  bool
-	volumes                     []string
-	timeout                     time.Duration
-	local                       string
-	updaterEnvironmentVariables []string
-}
-
-// root flags
-var (
-	updaterImage   string
-	proxyImage     string
-	collectorImage string
-	storageImage   string
-)
-
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "dependabot <command> <subcommand> [flags]",
-	Short: "Dependabot end-to-end runner",
-	Long:  `Run Dependabot jobs from the command line.`,
-	Example: heredoc.Doc(`
-        $ dependabot update go_modules dependabot/cli
-        $ dependabot test -f input.yml
-	`),
+	Use:   "dependabot",
+	Short: "Dependabot Lite v0.1-lite - without containers",
+	Long:  "Orquestador nativo de Dependabot sin dependencias externas.",
+	Example: `  $ dependabot update go_modules --local .
+  $ dependabot version`,
 	Version: Version(),
 }
 
 func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
-}
-
-func init() {
-	log.SetFlags(log.Ldate | log.Ltime | log.LUTC)
-	log.SetPrefix("    cli | ")
-
-	rootCmd.PersistentFlags().StringVar(&updaterImage, "updater-image", "", "container image to use for the updater")
-	rootCmd.PersistentFlags().StringVar(&proxyImage, "proxy-image", infra.ProxyImageName, "container image to use for the proxy")
-	rootCmd.PersistentFlags().StringVar(&collectorImage, "collector-image", infra.CollectorImageName, "container image to use for the OpenTelemetry collector")
-	rootCmd.PersistentFlags().StringVar(&storageImage, "storage-image", infra.StorageImageName, "container image to use for the storage service")
 }
