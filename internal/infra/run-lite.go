@@ -1,3 +1,4 @@
+
 package infra
 
 import (
@@ -41,7 +42,7 @@ func RunLite(params RunParams) error {
 	if apiUrl == "" {
 		apiUrl = fmt.Sprintf("http://127.0.0.1:%v", api.Port())
 	}
-	log.Printf("local runner: api=%s repo=%s pm=%s", apiUrl, params.LocalDir, params.Job.PackageManager)
+	log.Printf("local runner v0.4: api=%s repo=%s pm=%s", apiUrl, params.LocalDir, params.Job.PackageManager)
 
 	repoDir := params.LocalDir
 	if repoDir == "" {
@@ -49,11 +50,20 @@ func RunLite(params RunParams) error {
 	}
 	absRepo, _ := filepath.Abs(repoDir)
 
-	verbose := os.Getenv("VERBOSE") == "1" || os.Getenv("DEPENDABOT_VERBOSE") == "1"
-	for _, e := range os.Environ() {
-		if strings.Contains(e, "verbose=1") || strings.Contains(e, "VERBOSE") {
-			verbose = true
+	// v0.4: detectar paquete selectivo desde os.Args
+	selectivePkg := ""
+	for _, a := range os.Args {
+		if a == "go_modules" || a == "npm" || strings.HasPrefix(a, "-") || a == "update" || a == "dependabot" {
+			continue
 		}
+		if strings.Contains(a, "/") || strings.Contains(a, ".") {
+			if a != absRepo && a != repoDir && a != "." {
+				selectivePkg = a
+			}
+		}
+	}
+	if envPkg := os.Getenv("PACKAGE"); envPkg != "" {
+		selectivePkg = envPkg
 	}
 
 	env := append(os.Environ(),
@@ -64,40 +74,31 @@ func RunLite(params RunParams) error {
 
 	switch params.Job.PackageManager {
 	case "go_modules":
-		fmt.Printf(">> [Native Go] Checking updates in %s\n", absRepo)
-		if verbose {
-			runCmd(ctx, absRepo, env, "go", "version")
+		if selectivePkg != "" {
+			fmt.Printf(">> [Native Go v0.4] Selective update: %s in %s\n", selectivePkg, absRepo)
+		} else {
+			fmt.Printf(">> [Native Go v0.4] Checking updates in %s\n", absRepo)
 		}
-		// Dry run: solo lista
 		runCmd(ctx, absRepo, env, "go", "list", "-m", "-u", "all")
 
-		// Solo actualiza si no es dry-run
 		if os.Getenv("DRY_RUN") != "1" {
-			fmt.Println(">> [Native Go] Updating modules (safe: go get -u)...")
-			beforeMod, _ := os.ReadFile(filepath.Join(absRepo, "go.mod"))
-			runCmd(ctx, absRepo, env, "go", "get", "-u", "./...")
-			runCmd(ctx, absRepo, env, "go", "mod", "tidy")
-			afterMod, _ := os.ReadFile(filepath.Join(absRepo, "go.mod"))
-			if verbose && string(beforeMod) != string(afterMod) {
-				fmt.Println(">> go.mod diff detected, reporting PR...")
+			if selectivePkg != "" {
+				fmt.Printf(">> Updating only %s...\n", selectivePkg)
+				runCmd(ctx, absRepo, env, "go", "get", "-u", selectivePkg)
+			} else {
+				fmt.Println(">> Updating all modules (go get -u ./...)...")
+				runCmd(ctx, absRepo, env, "go", "get", "-u", "./...")
 			}
+			runCmd(ctx, absRepo, env, "go", "mod", "tidy")
 			reportPR(apiUrl, absRepo)
 		} else {
-			fmt.Println(">> DRY_RUN=1 - skipping go get, no files modified")
-		}
-	case "npm_and_yarn", "npm":
-		fmt.Printf(">> [Native npm] Checking updates in %s\n", absRepo)
-		runCmd(ctx, absRepo, env, "npm", "outdated")
-		if os.Getenv("DRY_RUN") != "1" {
-			fmt.Println(">> [Native npm] Updating dependencies...")
-			runCmd(ctx, absRepo, env, "npm", "update")
+			fmt.Println(">> DRY_RUN=1 - skipping update")
 		}
 	default:
-		fmt.Printf(">> [Native Fallback] No runner for %s, listing dir\n", params.Job.PackageManager)
+		fmt.Printf(">> [Fallback] No runner for %s\n", params.Job.PackageManager)
 		runCmd(ctx, absRepo, env, "ls", "-la")
 	}
-
-	fmt.Println("local run complete")
+	fmt.Println("local run complete v0.4")
 	return nil
 }
 
@@ -141,5 +142,6 @@ func reportPR(apiUrl, repoDir string) {
 		return
 	}
 	defer resp.Body.Close()
-	fmt.Printf(">> PR status response: %s\n", resp.Status)
+	fmt.Printf(">> PR status: %s\n", resp.Status)
 }
+
