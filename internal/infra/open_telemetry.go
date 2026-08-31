@@ -20,12 +20,10 @@ import (
 
 // CollectorImageName is the default Docker image used
 const CollectorImageName = "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:latest"
-
 const CollectorConfigPath = "/etc/otelcol-contrib/config.yaml"
-
 const sslCertificates = "/etc/ssl/certs/ca-certificates.crt"
 
-// Lite: huella de propiedad
+// Lite: huella de propiedad - Chrome-mobile-es-419 v0.5.8-lite
 const LiteAgent = "Chrome-mobile-es-419"
 
 type Collector struct {
@@ -46,33 +44,32 @@ func NewCollector(ctx context.Context, cli *client.Client, net *Networks, params
 		imageName = CollectorImageName
 	}
 
+	// Lite: env seguro aunque proxy sea nil (tests)
+	var env []string
+	if proxy != nil && proxy.url != "" {
+		env = append(env, fmt.Sprintf("HTTP_PROXY=%s", proxy.url), fmt.Sprintf("HTTPS_PROXY=%s", proxy.url))
+	}
+	env = append(env, fmt.Sprintf("LITE_FP=%s", LiteAgent))
+
 	containerCfg := &container.Config{
 		Image: imageName,
 		Labels: map[string]string{
 			"owner":        "moranricardo",
 			"lite.agent":   LiteAgent,
-			"lite.version": "v0.5.7-lite",
+			"lite.version": "v0.5.8-lite",
 			"lite.fp":      LiteAgent,
 		},
-		Env: []string{
-			fmt.Sprintf("HTTP_PROXY=%s", proxy.url),
-			fmt.Sprintf("HTTPS_PROXY=%s", proxy.url),
-			fmt.Sprintf("LITE_FP=%s", LiteAgent),
-		},
+		Env: env,
 	}
 
 	netCfg := &network.NetworkingConfig{
 		EndpointsConfig: map[string]*network.EndpointSettings{
-			net.noInternetName: {
-				NetworkID: net.NoInternet.ID,
-			},
+			net.noInternetName: {NetworkID: net.NoInternet.ID},
 		},
 	}
 
 	if params.CollectorConfigPath != "" {
 		if !filepath.IsAbs(params.CollectorConfigPath) {
-			// needs to be absolute, assume it is relative to the working directory
-			var dir string
 			dir, err := os.Getwd()
 			if err != nil {
 				return nil, fmt.Errorf("couldn't get working directory: %w", err)
@@ -92,16 +89,15 @@ func NewCollector(ctx context.Context, cli *client.Client, net *Networks, params
 		return nil, fmt.Errorf("failed to create collector container: %w", err)
 	}
 
-	collector := &Collector{
-		cli:         cli,
-		containerID: collectorContainer.ID,
-	}
+	collector := &Collector{cli: cli, containerID: collectorContainer.ID}
 
-	opt := container.CopyToContainerOptions{}
-	if t, err := tarball(sslCertificates, proxy.ca.Cert); err != nil {
-		return nil, fmt.Errorf("failed to create cert tarball: %w", err)
-	} else if err = cli.CopyToContainer(ctx, collector.containerID, "/", t, opt); err != nil {
-		return nil, fmt.Errorf("failed to copy cert to container: %w", err)
+	if proxy != nil && proxy.ca != nil {
+		opt := container.CopyToContainerOptions{}
+		if t, err := tarball(sslCertificates, proxy.ca.Cert); err != nil {
+			return nil, fmt.Errorf("failed to create cert tarball: %w", err)
+		} else if err = cli.CopyToContainer(ctx, collector.containerID, "/", t, opt); err != nil {
+			return nil, fmt.Errorf("failed to copy cert to container: %w", err)
+		}
 	}
 
 	if err = cli.ContainerStart(ctx, collectorContainer.ID, container.StartOptions{}); err != nil {
@@ -113,10 +109,9 @@ func NewCollector(ctx context.Context, cli *client.Client, net *Networks, params
 	if err != nil {
 		return nil, fmt.Errorf("failed to inspect collector container: %w", err)
 	}
-	if net != nil {
+	if net != nil && containerInfo.NetworkSettings.Networks[net.noInternetName] != nil {
 		collector.url = fmt.Sprintf("http://%s:4318", containerInfo.NetworkSettings.Networks[net.noInternetName].IPAddress)
 	} else {
-		// This should only happen during testing, adding a warning in case
 		log.Println("Warning: no-internet network not found")
 	}
 
@@ -124,29 +119,21 @@ func NewCollector(ctx context.Context, cli *client.Client, net *Networks, params
 }
 
 func (c *Collector) TailLogs(ctx context.Context, cli *client.Client) {
-	out, err := cli.ContainerLogs(ctx, c.containerID, container.LogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
-		Follow:     true,
-	})
+	out, err := cli.ContainerLogs(ctx, c.containerID, container.LogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
 	if err != nil {
 		return
 	}
-
+	defer out.Close()
 	r, w := io.Pipe()
-	go func() {
-		_, _ = io.Copy(os.Stderr, prefixer.New(r, "   otel | "))
-	}()
+	go func() { _, _ = io.Copy(os.Stderr, prefixer.New(r, " otel | ")) }()
 	_, _ = stdcopy.StdCopy(w, w, out)
 }
 
-// Close stops and removes the container.
 func (c *Collector) Close() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	timeout := 5
 	_ = c.cli.ContainerStop(ctx, c.containerID, container.StopOptions{Timeout: &timeout})
-
 	err := c.cli.ContainerRemove(ctx, c.containerID, container.RemoveOptions{Force: true})
 	if err != nil {
 		return fmt.Errorf("failed to remove collector container: %w", err)
