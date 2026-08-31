@@ -13,3 +13,7 @@ run-lite.go
 .e6-lite
 .e6-lite
 tmp/
+
+# local build
+dependabot
+[main]
