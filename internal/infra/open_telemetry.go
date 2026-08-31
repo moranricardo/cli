@@ -1,4 +1,9 @@
 package infra
 
-// Aquí asegúrate de que la validación del certificado use comparación de cadena o tipo correcto
-// Ejemplo: if proxy.ca != "" { ... }
+type Collector struct{}
+
+const CollectorImageName = "otel/opentelemetry-collector:latest"
+
+func NewCollector() *Collector {
+    return &Collector{}
+}
