@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -24,6 +25,9 @@ const CollectorConfigPath = "/etc/otelcol-contrib/config.yaml"
 
 const sslCertificates = "/etc/ssl/certs/ca-certificates.crt"
 
+// Lite: huella de propiedad
+const LiteAgent = "Chrome-mobile-es-419"
+
 type Collector struct {
 	cli         *client.Client
 	containerID string
@@ -33,14 +37,27 @@ type Collector struct {
 // NewCollector starts the OpenTelemetry collector container.
 func NewCollector(ctx context.Context, cli *client.Client, net *Networks, params *RunParams, proxy *Proxy) (*Collector, error) {
 	hostCfg := &container.HostConfig{
-		AutoRemove: false,
+		AutoRemove:    true, // Lite: no deja zombies - Chrome-mobile-es-419
+		RestartPolicy: container.RestartPolicy{Name: "no"},
+	}
+
+	imageName := params.CollectorImage
+	if imageName == "" {
+		imageName = CollectorImageName
 	}
 
 	containerCfg := &container.Config{
-		Image: params.CollectorImage,
+		Image: imageName,
+		Labels: map[string]string{
+			"owner":        "moranricardo",
+			"lite.agent":   LiteAgent,
+			"lite.version": "v0.5.7-lite",
+			"lite.fp":      LiteAgent,
+		},
 		Env: []string{
 			fmt.Sprintf("HTTP_PROXY=%s", proxy.url),
 			fmt.Sprintf("HTTPS_PROXY=%s", proxy.url),
+			fmt.Sprintf("LITE_FP=%s", LiteAgent),
 		},
 	}
 
@@ -125,10 +142,12 @@ func (c *Collector) TailLogs(ctx context.Context, cli *client.Client) {
 
 // Close stops and removes the container.
 func (c *Collector) Close() error {
-	timeout := 30
-	_ = c.cli.ContainerStop(context.Background(), c.containerID, container.StopOptions{Timeout: &timeout})
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	timeout := 5
+	_ = c.cli.ContainerStop(ctx, c.containerID, container.StopOptions{Timeout: &timeout})
 
-	err := c.cli.ContainerRemove(context.Background(), c.containerID, container.RemoveOptions{Force: true})
+	err := c.cli.ContainerRemove(ctx, c.containerID, container.RemoveOptions{Force: true})
 	if err != nil {
 		return fmt.Errorf("failed to remove collector container: %w", err)
 	}
