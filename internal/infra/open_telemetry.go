@@ -16,7 +16,7 @@ func NewCollector(ctx context.Context, dockerClient *docker.Client, networks *Ne
 return &Collector{url: ""}, nil
 }
 
-func (c *Collector) TailLogs(ctx context.Context) error {
+func (c *Collector) TailLogs(ctx context.Context, dockerClient *docker.Client) error {
 return nil
 }
 
