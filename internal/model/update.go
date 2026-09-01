@@ -1,98 +1,156 @@
 package model
 
+import "fmt"
+
+// UpdateWrapper es el envelope que usa el updater: {data: T}
 type UpdateWrapper struct {
-	Data any `json:"data" yaml:"data"`
+Data any `json:"data" yaml:"data"`
 }
 
+// ---- Enums tipados ----
+
+type FileOperation string
+
+const (
+OpUpdate FileOperation = "update"
+OpCreate FileOperation = "create"
+OpDelete FileOperation = "delete"
+)
+
+type DependencyFileType string
+
+const (
+FileTypeFile DependencyFileType = "file"
+)
+
+type CloseReason string
+
+const (
+CloseReasonUpToDate          CloseReason = "dependencies_changed"
+CloseReasonDependencyRemoved CloseReason = "dependency_removed"
+CloseReasonUpToDateV2        CloseReason = "up_to_date"
+)
+
+// ---- Core types ----
+
 type UpdateDependencyList struct {
-	Dependencies    []Dependency `json:"dependencies" yaml:"dependencies"`
-	DependencyFiles []string     `json:"dependency_files" yaml:"dependency_files"`
+Dependencies    []Dependency `json:"dependencies" yaml:"dependencies"`
+DependencyFiles []string     `json:"dependency_files" yaml:"dependency_files"`
 }
 
 type CreatePullRequest struct {
-	BaseCommitSha          string           `json:"base-commit-sha" yaml:"base-commit-sha"`
-	Dependencies           []Dependency     `json:"dependencies" yaml:"dependencies"`
-	UpdatedDependencyFiles []DependencyFile `json:"updated-dependency-files" yaml:"updated-dependency-files"`
-	PRTitle                string           `json:"pr-title" yaml:"pr-title,omitempty"`
-	PRBody                 string           `json:"pr-body" yaml:"pr-body,omitempty"`
-	CommitMessage          string           `json:"commit-message" yaml:"commit-message,omitempty"`
-	DependencyGroup        map[string]any   `json:"dependency-group" yaml:"dependency-group,omitempty"`
+BaseCommitSha          string           `json:"base-commit-sha" yaml:"base-commit-sha"`
+Dependencies           []Dependency     `json:"dependencies" yaml:"dependencies"`
+UpdatedDependencyFiles []DependencyFile `json:"updated-dependency-files" yaml:"updated-dependency-files"`
+PRTitle                string           `json:"pr-title,omitempty" yaml:"pr-title,omitempty"`
+PRBody                 string           `json:"pr-body,omitempty" yaml:"pr-body,omitempty"`
+CommitMessage          string           `json:"commit-message" yaml:"commit-message,omitempty"`
+DependencyGroup        *DependencyGroup `json:"dependency-group,omitempty" yaml:"dependency-group,omitempty"`
 }
 
 type UpdatePullRequest struct {
-	BaseCommitSha          string           `json:"base-commit-sha" yaml:"base-commit-sha"`
-	DependencyNames        []string         `json:"dependency-names" yaml:"dependency-names"`
-	UpdatedDependencyFiles []DependencyFile `json:"updated-dependency-files" yaml:"updated-dependency-files"`
-	PRTitle                string           `json:"pr-title" yaml:"pr-title,omitempty"`
-	PRBody                 string           `json:"pr-body" yaml:"pr-body,omitempty"`
-	CommitMessage          string           `json:"commit-message" yaml:"commit-message,omitempty"`
-	DependencyGroup        map[string]any   `json:"dependency-group" yaml:"dependency-group,omitempty"`
+BaseCommitSha          string           `json:"base-commit-sha" yaml:"base-commit-sha"`
+DependencyNames        []string         `json:"dependency-names" yaml:"dependency-names"`
+UpdatedDependencyFiles []DependencyFile `json:"updated-dependency-files" yaml:"updated-dependency-files"`
+PRTitle                string           `json:"pr-title,omitempty" yaml:"pr-title,omitempty"`
+PRBody                 string           `json:"pr-body,omitempty" yaml:"pr-body,omitempty"`
+CommitMessage          string           `json:"commit-message" yaml:"commit-message,omitempty"`
+DependencyGroup        *DependencyGroup `json:"dependency-group,omitempty" yaml:"dependency-group,omitempty"`
+}
+
+type DependencyGroup struct {
+Name       string         `json:"name" yaml:"name"`
+IsSecurity bool           `json:"applies-to,omitempty" yaml:"applies-to,omitempty"`
+Extra      map[string]any `json:",inline" yaml:",inline"`
 }
 
 type DependencySubmissionRequest struct {
-	Version   int8              `json:"version" yaml:"version"`
-	Sha       string            `json:"sha" yaml:"sha"`
-	Ref       string            `json:"ref" yaml:"ref"`
-	Job       map[string]any    `json:"job" yaml:"job"`
-	Detector  map[string]any    `json:"detector" yaml:"detector"`
-	Manifests map[string]any    `json:"manifests" yaml:"manifests"`
-	Metadata  map[string]string `json:"metadata" yaml:"metadata"`
+Version   int8              `json:"version" yaml:"version"`
+Sha       string            `json:"sha" yaml:"sha"`
+Ref       string            `json:"ref" yaml:"ref"`
+Job       JobMeta           `json:"job" yaml:"job"`
+Detector  DetectorMeta      `json:"detector" yaml:"detector"`
+Manifests map[string]any    `json:"manifests" yaml:"manifests"`
+Metadata  map[string]string `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+}
+
+type JobMeta struct {
+ID    string         `json:"id" yaml:"id"`
+Extra map[string]any `json:",inline" yaml:",inline"`
+}
+
+type DetectorMeta struct {
+Name    string `json:"name" yaml:"name"`
+Version string `json:"version" yaml:"version"`
+URL     string `json:"url,omitempty" yaml:"url,omitempty"`
 }
 
 type DependencyFile struct {
-	Content         string `json:"content" yaml:"content"`
-	ContentEncoding string `json:"content_encoding" yaml:"content_encoding"`
-	Deleted         bool   `json:"deleted" yaml:"deleted"`
-	Directory       string `json:"directory" yaml:"directory"`
-	Name            string `json:"name" yaml:"name"`
-	Operation       string `json:"operation" yaml:"operation"`
-	SupportFile     bool   `json:"support_file" yaml:"support_file"`
-	SymlinkTarget   string `json:"symlink_target,omitempty" yaml:"symlink_target,omitempty"`
-	Type            string `json:"type" yaml:"type"`
-	Mode            string `json:"mode" yaml:"mode,omitempty"`
+Content         string             `json:"content" yaml:"content"`
+ContentEncoding string             `json:"content_encoding" yaml:"content_encoding"`
+Deleted         bool               `json:"deleted" yaml:"deleted"`
+Directory       string             `json:"directory" yaml:"directory"`
+Name            string             `json:"name" yaml:"name"`
+Operation       FileOperation      `json:"operation" yaml:"operation"`
+SupportFile     bool               `json:"support_file" yaml:"support_file"`
+SymlinkTarget   string             `json:"symlink_target,omitempty" yaml:"symlink_target,omitempty"`
+Type            DependencyFileType `json:"type" yaml:"type"`
+Mode            string             `json:"mode,omitempty" yaml:"mode,omitempty"`
+}
+
+func (f DependencyFile) Validate() error {
+if f.Name == "" {
+return fmt.Errorf("file name required")
+}
+switch f.Operation {
+case OpUpdate, OpCreate, OpDelete:
+default:
+return fmt.Errorf("invalid operation %q", f.Operation)
+}
+return nil
 }
 
 type ClosePullRequest struct {
-	DependencyNames []string `json:"dependency-names" yaml:"dependency-names"`
-	Reason          string   `json:"reason" yaml:"reason"`
+DependencyNames []string    `json:"dependency-names" yaml:"dependency-names"`
+Reason          CloseReason `json:"reason" yaml:"reason"`
 }
 
 type MarkAsProcessed struct {
-	BaseCommitSha string `json:"base-commit-sha" yaml:"base-commit-sha"`
+BaseCommitSha string `json:"base-commit-sha" yaml:"base-commit-sha"`
 }
 
 type RecordEcosystemVersions struct {
-	EcosystemVersions map[string]any `json:"ecosystem_versions" yaml:"ecosystem_versions"`
+EcosystemVersions map[string]any `json:"ecosystem_versions" yaml:"ecosystem_versions"`
 }
 
 type RecordEcosystemMeta struct {
-	Ecosystem Ecosystem `json:"ecosystem" yaml:"ecosystem"`
+Ecosystem Ecosystem `json:"ecosystem" yaml:"ecosystem"`
 }
 
 type RecordUpdateJobError struct {
-	ErrorType    string         `json:"error-type" yaml:"error-type"`
-	ErrorDetails map[string]any `json:"error-details" yaml:"error-details"`
+ErrorType    string         `json:"error-type" yaml:"error-type"`
+ErrorDetails map[string]any `json:"error-details" yaml:"error-details"`
 }
 
 type RecordUpdateJobUnknownError struct {
-	ErrorType    string         `json:"error-type" yaml:"error-type"`
-	ErrorDetails map[string]any `json:"error-details" yaml:"error-details"`
+ErrorType    string         `json:"error-type" yaml:"error-type"`
+ErrorDetails map[string]any `json:"error-details" yaml:"error-details"`
 }
 
 type IncrementMetric struct {
-	Metric string         `json:"metric" yaml:"metric"`
-	Tags   map[string]any `json:"tags" yaml:"tags"`
+Metric string         `json:"metric" yaml:"metric"`
+Tags   map[string]any `json:"tags" yaml:"tags"`
 }
 
 type Ecosystem struct {
-	Name           string         `json:"name" yaml:"name"`
-	PackageManager VersionManager `json:"package_manager,omitempty" yaml:"package_manager,omitempty"`
-	Language       VersionManager `json:"language,omitempty" yaml:"language,omitempty"`
+Name           string          `json:"name" yaml:"name"`
+PackageManager *VersionManager `json:"package_manager,omitempty" yaml:"package_manager,omitempty"`
+Language       *VersionManager `json:"language,omitempty" yaml:"language,omitempty"`
 }
 
 type VersionManager struct {
-	Name        string         `json:"name" yaml:"name"`
-	Version     string         `json:"version" yaml:"version"`
-	RawVersion  string         `json:"raw_version" yaml:"raw_version"`
-	Requirement map[string]any `json:"requirement,omitempty" yaml:"requirement,omitempty"`
+Name        string         `json:"name" yaml:"name"`
+Version     string         `json:"version" yaml:"version"`
+RawVersion  string         `json:"raw_version" yaml:"raw_version"`
+Requirement map[string]any `json:"requirement,omitempty" yaml:"requirement,omitempty"`
 }

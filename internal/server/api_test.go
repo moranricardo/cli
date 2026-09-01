@@ -112,7 +112,7 @@ func TestAPI_compareRecordEcosystemMeta(t *testing.T) {
 			{
 				Ecosystem: model.Ecosystem{
 					Name: "bundler",
-					PackageManager: model.VersionManager{
+					PackageManager: &model.VersionManager{
 						Name:       "bundler",
 						Version:    "2.7.2",
 						RawVersion: "2.7.2",
@@ -124,7 +124,7 @@ func TestAPI_compareRecordEcosystemMeta(t *testing.T) {
 			{
 				Ecosystem: model.Ecosystem{
 					Name: "bundler",
-					PackageManager: model.VersionManager{
+					PackageManager: &model.VersionManager{
 						Name:       "bundler",
 						Version:    "2.7.2",
 						RawVersion: "2.7.2",
@@ -164,7 +164,7 @@ func TestAPI_compareRecordEcosystemMeta(t *testing.T) {
 			{
 				Ecosystem: model.Ecosystem{
 					Name: "go_modules",
-					PackageManager: model.VersionManager{
+					PackageManager: &model.VersionManager{
 						Name:       "gomod",
 						Version:    "1.21",
 						RawVersion: "1.21",
@@ -184,23 +184,23 @@ func TestAPI_compareRecordEcosystemMeta(t *testing.T) {
 func TestAPI_compareDependencySubmissionRequest(t *testing.T) {
 	t.Run("ignores detector version", func(t *testing.T) {
 		expect := model.DependencySubmissionRequest{
-			Detector: map[string]any{
-				"version": "1.2.3",
+			Detector: model.DetectorMeta{
+				Version: "1.2.3",
 			},
 		}
 		actual := model.DependencySubmissionRequest{
-			Detector: map[string]any{
-				"version": "4.5.6",
+			Detector: model.DetectorMeta{
+				Version: "4.5.6",
 			},
 		}
 
 		if compareDependencySubmissionRequest(expect, actual) != nil {
 			t.Error("expected detector version to be ignored")
 		}
-		if expect.Detector["version"] != "1.2.3" {
+		if expect.Detector.Version != "1.2.3" {
 			t.Error("expected expect detector version to be unchanged")
 		}
-		if actual.Detector["version"] != "4.5.6" {
+		if actual.Detector.Version != "4.5.6" {
 			t.Error("expected actual detector version to be unchanged")
 		}
 	})
