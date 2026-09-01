@@ -1,44 +1,67 @@
 package server
 
 import (
-	"context"
-	"encoding/json"
-	"errors"
-	"log"
-	"net"
-	"net/http"
-	"time"
+"context"
+"encoding/json"
+"errors"
+"log"
+"net"
+"net/http"
+"reflect"
+"time"
 
-	"github.com/dependabot/cli/internal/model"
+"github.com/dependabot/cli/internal/model"
 )
 
 type credServer struct {
-	server *http.Server
-	data   *model.Input
+server *http.Server
+data   model.Input
+done   chan struct{}
 }
 
-// the server receives one payload and shuts itself down
 func (s *credServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if err := json.NewDecoder(r.Body).Decode(&s.data); err != nil {
-		panic(err)
-	}
-	w.WriteHeader(200)
-	_ = r.Body.Close()
-	go func() {
-		_ = s.server.Shutdown(context.Background())
-	}()
+if r.Method != http.MethodPost {
+http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+return
+}
+r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1MB max para creds
+defer r.Body.Close()
+
+var input model.Input
+if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+http.Error(w, "invalid json: "+err.Error(), http.StatusBadRequest)
+return
 }
 
-// Input receives configuration via HTTP on the port and returns it decoded
-func Input(listener net.Listener) (*model.Input, error) {
-	handler := &credServer{}
-	srv := &http.Server{Handler: handler, ReadHeaderTimeout: 10 * time.Second}
-	handler.server = srv
+s.data = input
+w.WriteHeader(http.StatusOK)
 
-	// printing so the user doesn't think the cli is hanging
-	log.Println("waiting for input on", listener.Addr())
-	if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return nil, err
-	}
-	return handler.data, nil
+go func() {
+ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+defer cancel()
+_ = s.server.Shutdown(ctx)
+close(s.done)
+}()
+}
+
+func Input(listener net.Listener) (*model.Input, error) {
+handler := &credServer{done: make(chan struct{})}
+srv := &http.Server{
+Handler:           handler,
+ReadHeaderTimeout: 5 * time.Second,
+ReadTimeout:       10 * time.Second,
+WriteTimeout:      10 * time.Second,
+}
+handler.server = srv
+
+log.Println("waiting for input on", listener.Addr())
+if err := srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+return nil, err
+}
+
+<-handler.done // espera shutdown limpio
+if reflect.DeepEqual(handler.data, model.Input{}) {
+return nil, errors.New("no input received")
+}
+return &handler.data, nil
 }
