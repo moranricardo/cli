@@ -1,25 +1,26 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 
-if ! command -v go &> /dev/null
-then
-    echo "Go needs to be installed to run these tests"
-    exit
+if ! command -v go >/dev/null 2>&1; then
+  echo "❌ Go needs to be installed (go1.21+)" >&2
+  exit 1
 fi
 
-if ! command -v dependabot &> /dev/null
-then
-    echo "Dependabot CLI needs to be installed to run these tests"
-    exit
+if ! command -v dependabot >/dev/null 2>&1; then
+  echo "❌ dependabot binary not in PATH. Run: go install ./cmd/dependabot" >&2
+  exit 1
 fi
 
-# If there's 1 argument, use it as a regex to match the test name.
-if [ $# -eq 1 ]
-then
-    # count=1 is used to prevent Go from caching test results.
-    # It can occasionally be confusing without this.
-    go test cmd/dependabot/dependabot_test.go -count=1 -test.run "/.*$1.*/"
+echo "Using: $(go version) | dependabot: $(dependabot --version 2>&1 || echo 'unknown')"
+
+PATTERN="${1:-}"
+GOFLAGS="-count=1"
+if [ -n "$PATTERN" ]; then
+  echo "Running e2e with filter: $PATTERN"
+  go test ./cmd/dependabot -run ".*${PATTERN}.*" ${GOFLAGS} -v
 else
-    go test cmd/dependabot/dependabot_test.go -count=1
+  go test ./cmd/dependabot ${GOFLAGS} -v
 fi
