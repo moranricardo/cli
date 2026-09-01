@@ -122,12 +122,12 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.String(), "/")
 	kind := parts[len(parts)-1]
 
-	actual, err := decodeWrapper(kind, data)
+	actual, err := decodeWrapper(model.OutputType(kind), data)
 	if err != nil {
 		a.pushError(err)
 	}
 
-	a.outputRequestData(kind, actual)
+	a.outputRequestData(model.OutputType(kind), actual)
 
 	if kind == "create_pull_request" && actual != nil {
 		createPR := actual.Data.(model.CreatePullRequest)
@@ -148,7 +148,7 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := a.pushResult(kind, actual); err != nil {
+	if err := a.pushResult(model.OutputType(kind), actual); err != nil {
 		a.pushError(err)
 		return
 	}
@@ -157,10 +157,10 @@ func (a *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a.assertExpectation(kind, actual)
+	a.assertExpectation(model.OutputType(kind), actual)
 }
 
-func (a *API) assertExpectation(kind string, actual *model.UpdateWrapper) {
+func (a *API) assertExpectation(kind model.OutputType, actual *model.UpdateWrapper) {
 	if len(a.Expectations) <= a.cursor {
 		err := fmt.Errorf("missing expectation")
 		a.pushError(err)
@@ -187,7 +187,7 @@ func (a *API) assertExpectation(kind string, actual *model.UpdateWrapper) {
 	}
 }
 
-func (a *API) outputRequestData(kind string, data *model.UpdateWrapper) {
+func (a *API) outputRequestData(kind model.OutputType, data *model.UpdateWrapper) {
 	if a.writer != nil {
 		// output the data received to stdout
 		if err := json.NewEncoder(a.writer).Encode(map[string]any{
@@ -207,7 +207,7 @@ func (a *API) pushError(err error) {
 	a.Errors = append(a.Errors, err)
 }
 
-func (a *API) pushResult(kind string, actual *model.UpdateWrapper) error {
+func (a *API) pushResult(kind model.OutputType, actual *model.UpdateWrapper) error {
 	// TODO validate required data
 	output := model.Output{
 		Type:   kind,
@@ -223,7 +223,7 @@ func (a *API) pushResult(kind string, actual *model.UpdateWrapper) error {
 	return nil
 }
 
-func decodeWrapper(kind string, data []byte) (actual *model.UpdateWrapper, err error) {
+func decodeWrapper(kind model.OutputType, data []byte) (actual *model.UpdateWrapper, err error) {
 	actual = &model.UpdateWrapper{}
 	switch kind {
 	case "update_dependency_list":
