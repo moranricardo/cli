@@ -1,0 +1,48 @@
+# This test verifies that the proper job.json is written based on CLI args.
+
+exec docker build -qt input-verify-updater .
+
+dependabot update go_modules dependabot/cli --updater-image input-verify-updater
+stderr '"package-manager":"go_modules"'
+stderr '"repo":"dependabot/cli"'
+
+dependabot update go_modules dependabot/cli --commit 1278c8d7503f9881eb969959446e2c3a5a0cce2d --updater-image input-verify-updater
+stderr '"commit":"1278c8d7503f9881eb969959446e2c3a5a0cce2d"'
+
+dependabot update go_modules dependabot/cli --branch cool-branch --updater-image input-verify-updater
+stderr '"branch":"cool-branch"'
+
+! dependabot update go_modules dependabot/cli --commit unknown --updater-image input-verify-updater
+stderr 'commit must be a SHA, or not provided'
+
+dependabot update go_modules dependabot/cli --dep golang.org/x/image --updater-image input-verify-updater
+stderr '"allowed-updates":\[{"dependency-name":"golang.org/x/image"}\]'
+
+dependabot update go_modules dependabot/cli --directory /code --updater-image input-verify-updater
+stderr '"directories":\["/code"\]'
+
+exec docker rmi -f input-verify-updater
+
+-- Dockerfile --
+FROM ubuntu:24.04
+
+RUN useradd -m dependabot && \
+    mkdir -p /home/dependabot && \
+    chown dependabot:dependabot /home/dependabot
+
+COPY --chown=dependabot:dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
+COPY --chown=dependabot:dependabot --chmod=755 run bin/run
+
+USER dependabot
+WORKDIR /home/dependabot
+
+-- update-ca-certificates --
+#!/usr/bin/env bash
+set -e
+echo "Updated those certificates for ya"
+
+-- run --
+#!/usr/bin/env bash
+set -e
+# Dump job.json so testscript can assert its content via stderr
+cat /home/dependabot/dependabot-updater/job.json
