@@ -1,4 +1,4 @@
-# This test tries to verify that the proper job.json is written based on command line arguments.
+# This test verifies that the proper job.json is written based on CLI args.
 
 exec docker build -qt input-verify-updater .
 
@@ -16,29 +16,33 @@ stderr '"branch":"cool-branch"'
 stderr 'commit must be a SHA, or not provided'
 
 dependabot update go_modules dependabot/cli --dep golang.org/x/image --updater-image input-verify-updater
-stderr '"allowed-updates":\[\{"dependency-name":"golang.org/x/image"\}\]'
+stderr '"allowed-updates":\[{"dependency-name":"golang.org/x/image"}\]'
 
 dependabot update go_modules dependabot/cli --directory /code --updater-image input-verify-updater
-stderr '"directories":\["\/code"\]'
+stderr '"directories":\["/code"\]'
 
 exec docker rmi -f input-verify-updater
 
 -- Dockerfile --
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-RUN useradd dependabot
+RUN useradd -m dependabot && \
+    mkdir -p /home/dependabot && \
+    chown dependabot:dependabot /home/dependabot
 
-COPY --chown=dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
-COPY --chown=dependabot --chmod=755 run bin/run
+COPY --chown=dependabot:dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
+COPY --chown=dependabot:dependabot --chmod=755 run bin/run
+
+USER dependabot
+WORKDIR /home/dependabot
 
 -- update-ca-certificates --
 #!/usr/bin/env bash
-
+set -e
 echo "Updated those certificates for ya"
 
 -- run --
 #!/usr/bin/env bash
-
-echo "Not sure why but unless I echo here the json doesn't output"
-
+set -e
+# Dump job.json so testscript can assert its content via stderr
 cat /home/dependabot/dependabot-updater/job.json
