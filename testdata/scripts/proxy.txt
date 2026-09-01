@@ -24,35 +24,43 @@ crash
 I am a certificate
 
 -- Dockerfile.proxy --
-FROM ubuntu:22.04
+FROM ubuntu:24.04
+
+RUN apt-get update && rm -rf /var/lib/apt/lists/*
 
 COPY --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
 COPY --chmod=755 dependabot-proxy /dependabot-proxy
 
 -- dependabot-proxy --
 #!/usr/bin/env bash
-
+set -e
 echo "Proxy is running"
-echo "$(</config.json)"
+cat /config.json 2>/dev/null || echo "{}"
 
 -- Dockerfile --
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-RUN useradd dependabot
+RUN useradd -m dependabot && \
+    mkdir -p /home/dependabot && \
+    chown dependabot:dependabot /home/dependabot
 
-COPY --chown=dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
-COPY --chown=dependabot --chmod=755 run bin/run
+COPY --chown=dependabot:dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
+COPY --chown=dependabot:dependabot --chmod=755 run bin/run
+
+USER dependabot
+WORKDIR /home/dependabot
 
 -- update-ca-certificates --
 #!/usr/bin/env bash
-
-ls /usr/local/share/ca-certificates || true
-cat /usr/local/share/ca-certificates/custom-ca-cert.crt || true
-
+set -e
+ls /usr/local/share/ca-certificates 2>/dev/null || true
+cat /usr/local/share/ca-certificates/custom-ca-cert.crt 2>/dev/null || true
 # signal to cause the proxy to exit with a non-zero code
-grep crash /usr/local/share/ca-certificates/custom-ca-cert.crt && exit 1 || true
+if grep -q crash /usr/local/share/ca-certificates/custom-ca-cert.crt 2>/dev/null; then
+  exit 1
+fi
 
 -- run --
 #!/usr/bin/env bash
-
+set -e
 echo "Updater is running"
