@@ -1,7 +1,7 @@
 # Build the dummy Dockerfile
 exec docker build -qt dummy-updater .
 
-# Run the dependabot command
+# Run the dependabot command - should call both fetch and update
 dependabot update go_modules dependabot/cli --updater-image dummy-updater
 
 # assert the dummy is working
@@ -11,19 +11,26 @@ stderr 'bin/run arguments: update_files'
 exec docker rmi -f dummy-updater
 
 -- Dockerfile --
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-RUN useradd dependabot
+RUN useradd -m dependabot && \
+    mkdir -p /home/dependabot && \
+    chown dependabot:dependabot /home/dependabot
 
-COPY --chown=dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
-COPY --chown=dependabot --chmod=755 run bin/run
+COPY --chown=dependabot:dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
+COPY --chown=dependabot:dependabot --chmod=755 run bin/run
+
+USER dependabot
+WORKDIR /home/dependabot
 
 -- update-ca-certificates --
 #!/usr/bin/env bash
-
+set -e
 echo "Updated those certificates for ya"
 
 -- run --
 #!/usr/bin/env bash
-
+set -e
 echo "bin/run arguments: $@"
+echo "pwd: $(pwd)" >&2
+echo "whoami: $(whoami)" >&2

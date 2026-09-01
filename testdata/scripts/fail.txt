@@ -1,4 +1,4 @@
-exec docker build -t fail-updater .
+exec docker build -qt fail-updater .
 
 ! dependabot update go_modules dependabot/cli --updater-image fail-updater
 stderr 'updater failure: updater exited with code 2'
@@ -9,29 +9,36 @@ dependabot test -f input.yml --updater-image fail-updater
 exec docker rmi -f fail-updater
 
 -- Dockerfile --
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-RUN useradd dependabot
+RUN useradd -m dependabot && \
+    mkdir -p /home/dependabot && \
+    chown dependabot:dependabot /home/dependabot
 
-COPY --chown=dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
-COPY --chown=dependabot --chmod=755 run bin/run
+COPY --chown=dependabot:dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
+COPY --chown=dependabot:dependabot --chmod=755 run bin/run
+
+USER dependabot
+WORKDIR /home/dependabot
 
 -- update-ca-certificates --
 #!/usr/bin/env bash
-
+set -e
 echo "Updating CA certificates..."
 
 -- run --
 #!/usr/bin/env bash
-
+set -e
+echo "simulating updater crash with code 2" >&2
 exit 2
 
 -- input.yml --
 input:
-    job:
-        package-manager: go_modules
-        source:
-            repo: dependabot/cli
-            directory: /
+  job:
+    package-manager: go_modules
+    source:
+      provider: github
+      repo: dependabot/cli
+      directory: /
 output:
-    -
+    - type: mark_as_processed

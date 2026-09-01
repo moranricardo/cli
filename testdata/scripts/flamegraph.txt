@@ -6,27 +6,35 @@ dependabot update go_modules dependabot/cli --updater-image flamegraph-updater -
 
 # There should be a flamegraph file in the current directory
 exists flamegraph.html
+contains flamegraph.html 'fake flamegraph'
 
 exec docker rmi -f flamegraph-updater
+exec rm -f flamegraph.html
 
 -- Dockerfile --
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-RUN useradd dependabot
+RUN useradd -m dependabot && \
+    mkdir -p /home/dependabot && \
+    chown dependabot:dependabot /home/dependabot
 
-COPY --chown=dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
-COPY --chown=dependabot --chmod=755 run bin/run
+COPY --chown=dependabot:dependabot --chmod=755 update-ca-certificates /usr/bin/update-ca-certificates
+COPY --chown=dependabot:dependabot --chmod=755 run bin/run
+
+USER dependabot
+WORKDIR /home/dependabot
 
 -- update-ca-certificates --
 #!/usr/bin/env bash
-
+set -e
 echo "Updated those certificates for ya"
 
 -- run --
 #!/usr/bin/env bash
+set -e
 
 # if there's an environment variable "FLAMEGRAPH" set, create a fake flamegraph in tmp
 if [ -n "$FLAMEGRAPH" ]; then
-  echo "Creating flamegraph"
+  echo "Creating flamegraph" >&2
   echo "fake flamegraph" > /tmp/dependabot-flamegraph.html
 fi
