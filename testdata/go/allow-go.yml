@@ -2,107 +2,43 @@ input:
   job:
     package-manager: go_modules
     allowed-updates:
-      - dependency-name: github.com/fatih/color
+            - dependency-name: github.com/fatih/color
     source:
       provider: github
       repo: dependabot/smoke-tests
       directory: /
       commit: 832e37c1a7a4ef89feb9dc7cfa06f62205191994
 output:
-  - type: update_dependency_list
+    - type: update_dependency_list
     expect:
       data:
         dependencies:
-          - name: github.com/fatih/color
+                    - name: github.com/fatih/color
             requirements:
-              - file: go.mod
+                            - file: go.mod
                 groups: []
                 requirement: v1.7.0
                 source:
                   source: github.com/fatih/color
                   type: default
             version: 1.7.0
-          - name: rsc.io/qr
-            requirements: []
-            version: 0.1.0
-          - name: rsc.io/quote
-            requirements:
-              - file: go.mod
-                groups: []
-                requirement: v1.4.0
-                source:
-                  source: rsc.io/quote
-                  type: default
-            version: 1.4.0
         dependency_files:
-          - /go.mod
-          - /go.sum
-  - type: create_pull_request
+                    - /go.mod
+                    - /go.sum
+    - type: create_pull_request
     expect:
       data:
         base-commit-sha: 832e37c1a7a4ef89feb9dc7cfa06f62205191994
         dependencies:
-          - name: github.com/fatih/color
-            previous-requirements:
-              - file: go.mod
-                groups: []
-                requirement: v1.7.0
-                source:
-                  source: github.com/fatih/color
-                  type: default
+                    - name: github.com/fatih/color
             previous-version: 1.7.0
-            requirements:
-              - file: go.mod
-                groups: []
-                requirement: v1.18.0
-                source:
-                  source: github.com/fatih/color
-                  type: default
             version: 1.18.0
         updated-dependency-files:
-          - content: |
-              module github.com/dependabot/vgotest
-
-              go 1.22
-
-              require (
-                      github.com/fatih/color v1.18.0
-                      golang.org/x/sys v0.28.0 // indirect
-                      rsc.io/qr v0.1.0
-                      rsc.io/quote v1.4.0
-              )
-
-              replace rsc.io/qr => github.com/rsc/qr v0.2.0
-            content_encoding: utf-8
-            deleted: false
-            directory: /
-            name: go.mod
-            operation: update
-            support_file: false
+                    - name: go.mod
             type: file
-          - content: |
-              github.com/fatih/color v1.18.0 h1:OB8wqlr5lVp/b5aV4g9rV/R23V0cKz18yL8c7bC43s8=
-              github.com/fatih/color v1.18.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
-              github.com/mattn/go-colorable v0.1.13 h1:f7+LJghg/D2d+eLz4h17iQ5fPjS1N6m6vT184j0u444=
-              github.com/mattn/go-colorable v0.1.13/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
-              github.com/mattn/go-isatty v0.0.20 h1:xfD0DQItHKnDcbNv1gUp1zmUuP4vHIZ1SRZ8SAIHvL8=
-              github.com/mattn/go-isatty v0.0.20/go.mod h1:W+UZBnAnTkVdZSkxXp8mF5B4b0u4tLp3NqJ+XG6A/l=
-              github.com/rsc/qr v0.2.0 h1:tH61+huiZvu+hXL1VUovAu2AnhdG4eJQk2+on3XsDBQ=
-              github.com/rsc/qr v0.2.0/go.mod h1:IF+uZjkb9fqyeF/4tlBoynqmQxUoPfWEKh921coOuXs=
-              golang.org/x/sys v0.28.0 h1:W/aI9dcf9G1bW8n9T5Y4a88Xh0M2aG7E4d9YdZ3eP5s=
-              golang.org/x/sys v0.28.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-              rsc.io/quote v1.4.0 h1:tYuJspOzwTRMUOX6qmSDRTEKFVV80GM0/l89OLZuVNg=
-              rsc.io/quote v1.4.0/go.mod h1:S2vMDfxMfk+OGQ7xf1uNqJCSuSPCW5QC127LHYfOJmQ=
-              rsc.io/sampler v1.0.0 h1:CZX0Ury6np11Lwls9Jja2rFf3YrNPeUPAWiEVrJ0u/4=
-              rsc.io/sampler v1.0.0/go.mod h1:cqxpM3ZVz9VtirqxZPmrWzkQ+UkiNiGtkrN+B+i8kx8=
-            content_encoding: utf-8
-            deleted: false
             directory: /
-            name: go.sum
             operation: update
-            support_file: false
-            type: file
-  - type: mark_as_processed
+    - type: mark_as_processed
     expect:
       data:
         base-commit-sha: 832e37c1a7a4ef89feb9dc7cfa06f62205191994
