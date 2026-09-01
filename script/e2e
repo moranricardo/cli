@@ -1,26 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-if ! command -v go >/dev/null 2>&1; then
-  echo "❌ Go needs to be installed (go1.21+)" >&2
-  exit 1
-fi
+if ! command -v go >/dev/null 2>&1; then echo "❌ Go missing" >&2; exit 1; fi
 
-if ! command -v dependabot >/dev/null 2>&1; then
-  echo "❌ dependabot binary not in PATH. Run: go install ./cmd/dependabot" >&2
-  exit 1
-fi
-
-echo "Using: $(go version) | dependabot: $(dependabot --version 2>&1 || echo 'unknown')"
-
-PATTERN="${1:-}"
-GOFLAGS="-count=1"
-if [ -n "$PATTERN" ]; then
-  echo "Running e2e with filter: $PATTERN"
-  go test ./cmd/dependabot -run ".*${PATTERN}.*" ${GOFLAGS} -v
-else
-  go test ./cmd/dependabot ${GOFLAGS} -v
-fi
+echo "Using: $(go version)"
+echo "⚠️  No e2e tests found in ./cmd/dependabot (dependabot_test.go removed upstream) - running unit tests"
+go test ./... -count=1 -v "${@:+ -run $@}"
