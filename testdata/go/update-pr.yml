@@ -1,0 +1,58 @@
+input:
+  job:
+    package-manager: go_modules
+    allowed-updates:
+      - update-type: all
+    dependencies:
+      - rsc.io/quote
+    existing-pull-requests:
+      - dependency-name: rsc.io/quote
+        dependency-version: 1.5.2
+    ignore-conditions:
+      - dependency-name: github.com/fatih/color
+        source: testdata/go/update-pr.yml
+      - dependency-name: rsc.io/quote
+        source: testdata/go/update-pr.yml
+        version-requirement: ">1.9.0"
+    source:
+      provider: github
+      repo: dependabot/smoke-tests
+      directory: /
+      commit: 832e37c1a7a4ef89feb9dc7cfa06f62205191994
+    updating-a-pull-request: true
+output:
+  - type: update_dependency_list
+    expect:
+      data:
+        dependencies:
+          - name: rsc.io/quote
+            version: 1.4.0
+            requirements:
+              - file: go.mod
+                groups: []
+                requirement: v1.4.0
+                source:
+                  source: rsc.io/quote
+                  type: default
+        dependency_files:
+          - /go.mod
+          - /go.sum
+  - type: update_pull_request
+    expect:
+      data:
+        base-commit-sha: 832e37c1a7a4ef89feb9dc7cfa06f62205191994
+        dependency-names:
+          - rsc.io/quote
+        updated-dependency-files:
+          - name: go.mod
+            type: file
+            directory: /
+            operation: update
+          - name: go.sum
+            type: file
+            directory: /
+            operation: update
+  - type: mark_as_processed
+    expect:
+      data:
+        base-commit-sha: 832e37c1a7a4ef89feb9dc7cfa06f62205191994
