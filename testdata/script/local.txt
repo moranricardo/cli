@@ -1,0 +1,60 @@
+exec docker build -qt local-updater .
+
+# Without --local, repo dir doesn't exist -> should fail
+! dependabot update go_modules dependabot-fixtures/go-modules-lib --updater-image local-updater
+stderr 'No such file or directory'
+
+# With --local, CLI should create repo dir and mount my-repo into it
+dependabot update go_modules dependabot-fixtures/go-modules-lib --updater-image local-updater --local my-repo
+! stderr 'No such file or directory'
+
+# Should see repo contents and dummy commit
+stderr \.git
+stderr hello.txt
+stderr 'Dependabot CLI automated commit'
+
+# When my-repo is a clean git repo, CLI should NOT create its own commit
+exec git -C my-repo init
+exec git -C my-repo config user.name "Test User"
+exec git -C my-repo config user.email "test@example.com"
+exec git -C my-repo add hello.txt
+exec git -C my-repo commit -m 'assert this in the test'
+
+dependabot update go_modules dependabot-fixtures/go-modules-lib --updater-image local-updater --local my-repo
+stderr 'hello.txt'
+stderr 'assert this in the test'
+
+# When my-repo is dirty, CLI should auto-commit so changes aren't lost
+exec echo 'make an uncommited change' >> my-repo/hello.txt
+exec touch my-repo/goodbye.txt
+
+dependabot update go_modules dependabot-fixtures/go-modules-lib --updater-image local-updater --local my-repo
+stderr 'hello.txt'
+stderr 'goodbye.txt'
+stderr 'Dependabot CLI automated commit'
+
+exec docker rmi -f local-updater
+
+-- Dockerfile --
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    useradd -m dependabot && \
+    mkdir -p /home/dependabot/dependabot-updater && \
+    chown -R dependabot:dependabot /home/dependabot && \
+    chgrp dependabot /etc/ssl/certs && chmod g+w /etc/ssl/certs
+
+COPY --chown=dependabot:dependabot --chmod=755 run bin/run
+
+USER dependabot
+WORKDIR /home/dependabot
+
+-- run --
+#!/usr/bin/env bash
+set -e
+ls -a /home/dependabot/dependabot-updater/repo
+git -C /home/dependabot/dependabot-updater/repo log -1 --pretty=format:%s 2>/dev/null || true
+
+-- my-repo/hello.txt --
+Hello, world!
