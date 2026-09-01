@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 type RunCommand string
 
 const (
@@ -10,26 +12,35 @@ const (
 	UpdateGraphCommand RunCommand = "graph"
 )
 
-// SmokeTest is a way to test a job by asserting the outputs.
+type OutputType string
+
+const (
+	CreatePRType        OutputType = "create_pull_request"
+	ClosePRType         OutputType = "close_pull_request"
+	UpdateDepListType   OutputType = "update_dependency_list"
+	MarkAsProcessedType OutputType = "mark_as_processed"
+	RecordEcosystemType OutputType = "record_ecosystem_versions"
+	RecordUpdateJobType OutputType = "record_update_job_warning"
+)
+
 type SmokeTest struct {
-	// Input is the input parameters
-	Input Input `yaml:"input"`
-	// Output is the list of expected outputs
-	Output []Output `yaml:"output,omitempty"`
+	Input  Input    `yaml:"input" json:"input"`
+	Output []Output `yaml:"output,omitempty" json:"output,omitempty"`
 }
 
-// Input is the input to a job
 type Input struct {
-	// Job is the data given to the updater
-	Job Job `yaml:"job"`
-	// Credentials is the registry info and tokens to pass to the Proxy
-	Credentials []Credential `yaml:"credentials,omitempty"`
+	Job         Job          `yaml:"job" json:"job"`
+	Credentials []Credential `yaml:"credentials,omitempty" json:"credentials,omitempty"`
 }
 
-// Output is the expected output given the inputs
 type Output struct {
-	// Type is the kind of data to be checked, e.g. update_dependency_list, create_pull_request, etc
-	Type string `yaml:"type"`
-	// Expect is the data expected to be sent
-	Expect UpdateWrapper `yaml:"expect"`
+	Type   OutputType    `yaml:"type" json:"type"`
+	Expect UpdateWrapper `yaml:"expect" json:"expect"`
+}
+
+func (s SmokeTest) Validate() error {
+	if s.Input.Job.PackageManager == "" {
+		return fmt.Errorf("package-manager required")
+	}
+	return nil
 }
