@@ -1,12 +1,18 @@
 job:
+  id: "private-npm-test"
   package-manager: npm_and_yarn
   allowed-updates:
-    - update-type: all
+    - dependency-type: direct
+      update-type: all
   source:
     provider: github
     repo: dsp-testing/npm-private-registry
     directory: /consumer
+    hostname: github.com
+    api-endpoint: https://api.github.com
+  experiments:
+    enable_record_ecosystem_versions: true
 credentials:
   - type: npm_registry
-    registry: https://npm.pkg.github.com
+    registry: npm.pkg.github.com
     token: $GPR_TOKEN
