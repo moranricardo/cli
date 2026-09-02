@@ -10,6 +10,21 @@ linters:
     - misspell
     - noctx
     - prealloc
+    - revive
+    - staticcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
 
 issues:
   max-same-issues: 0
+  exclude-dirs:
+    - testdata
+    - tmp
+    - cache
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
