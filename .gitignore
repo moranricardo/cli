@@ -42,3 +42,6 @@ informe.sh
 informe.txt
 dependabot-internal
 moran-internal
+dist/
+moran-internal
+dependabot-internal
