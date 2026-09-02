@@ -13,7 +13,7 @@ import (
 "sync"
 "testing"
 
-"github.com/dependabot/cli/internal/model"
+"github.com/moranricardo/cli/internal/model"
 )
 
 func Test_decodeWrapper(t *testing.T) {

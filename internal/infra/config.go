@@ -2,7 +2,7 @@ package infra
 
 import (
 	"errors"
-	"github.com/dependabot/cli/internal/model"
+	"github.com/moranricardo/cli/internal/model"
 )
 
 // ConfigFilePath is the path to proxy config file.

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dependabot/cli/cmd/dependabot/internal/cmd"
+	"github.com/moranricardo/cli/cmd/dependabot/internal/cmd"
 )
 
 func main() {

@@ -10,7 +10,7 @@ import (
 "reflect"
 "time"
 
-"github.com/dependabot/cli/internal/model"
+"github.com/moranricardo/cli/internal/model"
 )
 
 type credServer struct {

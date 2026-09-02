@@ -10,7 +10,7 @@ import (
 "testing"
 "time"
 
-"github.com/dependabot/cli/internal/model"
+"github.com/moranricardo/cli/internal/model"
 )
 
 func newListener(t *testing.T) net.Listener {

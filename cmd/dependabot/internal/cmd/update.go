@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dependabot/cli/internal/infra"
-	"github.com/dependabot/cli/internal/model"
+	"github.com/moranricardo/cli/internal/infra"
+	"github.com/moranricardo/cli/internal/model"
 	"github.com/spf13/cobra"
 )
 

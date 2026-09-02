@@ -2,7 +2,7 @@ package infra
 
 import (
  "time"
- "github.com/dependabot/cli/internal/model"
+ "github.com/moranricardo/cli/internal/model"
  "io"
  "context"
 )

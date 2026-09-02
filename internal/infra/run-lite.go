@@ -13,7 +13,7 @@ import (
 "strings"
 "time"
 
-"github.com/dependabot/cli/internal/server"
+"github.com/moranricardo/cli/internal/server"
 )
 
 type UpdatedDependencyFile struct {
