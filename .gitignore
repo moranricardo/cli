@@ -36,3 +36,9 @@ evaluator.js
 # node
 package*.json
 node_modules/
+
+# interno
+informe.sh
+informe.txt
+dependabot-internal
+moran-internal
