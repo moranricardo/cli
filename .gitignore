@@ -1,19 +1,32 @@
-tmp
-testdata/caches
-cache
+# output
 out.yaml
-/dependabot
-dependabot.exe
-.env
-*.tar.gz
-updater-lite.sh
-.e6-lite
-internal/infra/run-lite.go
-run-lite.go
-.e6-lite
-.e6-lite
+out/
 tmp/
+tmp
+testdata/caches/
+cache/
 
 # local build
+/dependabot
 dependabot
-[main]
+dependabot.exe
+*.exe
+*.tar.gz
+
+# env & secrets
+.env
+.env.local
+
+# go
+*.test
+/vendor/
+
+# os / ide
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# experimental e6
+.e6-lite/
