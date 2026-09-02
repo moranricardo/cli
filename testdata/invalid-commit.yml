@@ -1,4 +1,5 @@
 job:
+  id: "invalid-commit-test"
   package-manager: go_modules
   allowed-updates:
     - dependency-type: direct
@@ -7,4 +8,8 @@ job:
     provider: github
     repo: dependabot/cli
     directory: /
+    hostname: github.com
+    api-endpoint: https://api.github.com
     commit: unknown
+  experiments:
+    enable_record_ecosystem_versions: true
