@@ -1,21 +1,28 @@
 {
   "job": {
+    "id": "private-bundler-test",
     "package-manager": "bundler",
     "allowed-updates": [
       {
+        "dependency-type": "direct",
         "update-type": "all"
       }
     ],
     "source": {
       "provider": "github",
       "repo": "dsp-testing/ruby-bundler-private-registry",
-      "directory": "/"
+      "directory": "/",
+      "hostname": "github.com",
+      "api-endpoint": "https://api.github.com"
+    },
+    "experiments": {
+      "enable_record_ecosystem_versions": true
     }
   },
   "credentials": [
     {
       "type": "rubygems_server",
-      "host": "https://rubygems.pkg.github.com/dsp-testing",
+      "host": "rubygems.pkg.github.com/dsp-testing",
       "token": "$GPR_TOKEN"
     }
   ]
