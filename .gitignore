@@ -32,3 +32,7 @@ dependabot.exe
 .e6-lite/
 Brewfile.lock.json
 evaluator.js
+
+# node
+package*.json
+node_modules/
