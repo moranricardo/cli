@@ -30,3 +30,4 @@ dependabot.exe
 
 # experimental e6
 .e6-lite/
+Brewfile.lock.json
