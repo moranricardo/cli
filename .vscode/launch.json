@@ -3,39 +3,21 @@
   "configurations": [
     {
       "type": "go",
+      "name": "Diamond: Auditor STABLE",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/../didactic-octo-chrome/cmd/orchestrator/main.go",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "go",
       "name": "Local: go_modules (docker-less)",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/dependabot",
       "envFile": "${workspaceFolder}/.env",
-      "env": {
-        "DEPENDABOT_LOCAL": "1"
-      },
+      "env": { "DEPENDABOT_LOCAL": "1" },
       "args": ["update", "go_modules", "."],
-      "console": "integratedTerminal"
-    },
-    {
-      "type": "go",
-      "name": "Docker: go_modules (oficial)",
-      "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/cmd/dependabot",
-      "envFile": "${workspaceFolder}/.env",
-      "args": ["update", "go_modules", "dependabot/cli"],
-      "console": "integratedTerminal"
-    },
-    {
-      "type": "go",
-      "name": "Local: Debug API port",
-      "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/cmd/dependabot",
-      "envFile": "${workspaceFolder}/.env",
-      "env": {
-        "DEPENDABOT_LOCAL": "1",
-        "DEPENDABOT_DEBUG": "1"
-      },
-      "args": ["update", "go_modules", ".", "--debug"],
       "console": "integratedTerminal"
     }
   ]
