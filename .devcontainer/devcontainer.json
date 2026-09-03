@@ -1,9 +1,9 @@
 {
   "name": "CLI - Go & Node",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
   "features": {
     "ghcr.io/devcontainers/features/go:1": {
-      "version": "latest",
+      "version": "1.23",
       "installTools": true
     },
     "ghcr.io/devcontainers/features/node:1": {
@@ -11,24 +11,29 @@
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
-      "moby": true
+      "dockerDashComposeVersion": "v2",
+      "moby": false
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "latest"
+      "version": "2.62.0"
     }
   },
   "customizations": {
     "vscode": {
       "settings": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "go.lintTool": "golangci-lint",
+        "editor.defaultFormatter": "golang.go"
       },
       "extensions": [
         "golang.go",
         "dbaeumer.vscode-eslint",
-        "GitHub.vscode-pull-request-github"
+        "GitHub.vscode-pull-request-github",
+        "golangci.golangci-lint"
       ]
     }
   },
-  "postCreateCommand": "go mod download",
-  "remoteUser": "vscode"
+  "postCreateCommand": "go mod download && go mod tidy",
+  "remoteUser": "vscode",
+  "updateContentCommand": "go version && node --version && gh --version"
 }
