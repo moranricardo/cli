@@ -45,3 +45,5 @@ moran-internal
 dist/
 moran-internal
 dependabot-internal
+bin/
+*.exe
