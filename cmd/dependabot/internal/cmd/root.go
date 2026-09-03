@@ -3,22 +3,14 @@ package cmd
 import (
   "fmt"
   "os"
-
   "github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
   Use:   "dependabot",
   Short: "Dependabot Lite - Orquestador nativo Go 1.27",
-  Long: `Dependabot Lite es un orquestador nativo de actualizaciones
-sin dependencias de contenedores ni scripts externos.
-
-Flujo de trabajo:
-    1. Inspecciona el entorno y detecta el gestor de paquetes.
-    2. Resuelve dependencias de forma nativa (go_modules, npm, pip, etc.).
-    3. Despacha el payload con las modificaciones al API Proxy.`,
-  Version:       Version(),
-  SilenceUsage:  true,
+  Long: `Dependabot Lite es un orquestador nativo sin Docker`,
+  SilenceUsage: true,
   SilenceErrors: true,
 }
 
@@ -30,7 +22,6 @@ func Execute() {
 }
 
 func init() {
-  rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Activar salida detallada")
+  rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose")
   rootCmd.AddCommand(newUpdateCmd())
-  rootCmd.AddCommand(newVersionCmd())
 }
