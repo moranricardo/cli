@@ -1,49 +1,15 @@
-# output
 out.yaml
 out/
 tmp/
-tmp
-testdata/caches/
-cache/
-
-# local build
+bin/
+./dependabot
+./dependabot.exe
 /dependabot
-dependabot
-dependabot.exe
 *.exe
-*.tar.gz
-
-# env & secrets
 .env
-.env.local
-
-# go
 *.test
 /vendor/
-
-# os / ide
 .DS_Store
 .idea/
 .vscode/
-*.swp
-*~
-
-# experimental e6
-.e6-lite/
-Brewfile.lock.json
-evaluator.js
-
-# node
-package*.json
-node_modules/
-
-# interno
-informe.sh
-informe.txt
-dependabot-internal
-moran-internal
 dist/
-moran-internal
-dependabot-internal
-bin/
-*.exe
