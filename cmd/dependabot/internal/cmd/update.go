@@ -1,80 +1,78 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
+"context"
+"errors"
+"fmt"
+"os"
+"path/filepath"
+"time"
 
-	"github.com/moranricardo/cli/internal/infra"
-	"github.com/moranricardo/cli/internal/model"
-	"github.com/spf13/cobra"
+"github.com/moranricardo/cli/internal/infra"
+"github.com/moranricardo/cli/internal/model"
+"github.com/spf13/cobra"
 )
 
+func newUpdateCmd() *cobra.Command {
 var localRun bool
 
-var updateCmd = &cobra.Command{
-	Use:   "update [ecosystem]",
-	Short: "Run dependabot update locally without Docker",
-	Long: `Ejecuta el update de forma nativa:
-- Detecta go.mod, package.json, etc.
-- No necesita Docker ni test.yml`,
-	Example: `  $ dependabot update go_modules --local-run .
-  $ dependabot update go_modules --local-run -v .`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if !localRun {
-			return fmt.Errorf("usa --local-run (ej: dependabot update go_modules --local-run .)")
-		}
-		verbose, _ := cmd.Root().PersistentFlags().GetBool("verbose")
-		return RunLite(args, verbose)
-	},
+cmd := &cobra.Command{
+Use:   "update [ecosystem] [dir]",
+Short: "Run dependabot update locally without Docker (Go STABLE)",
+Long:  `Diamond STABLE: Ejecuta update nativo sin Docker. Detecta go.mod automáticamente.`,
+Args:  cobra.MaximumNArgs(2),
+RunE: func(cmd *cobra.Command, args []string) error {
+if !localRun {
+return errors.New("usa --local-run (ej: dependabot update go_modules --local-run .)")
+}
+ctx, cancel := context.WithTimeout(cmd.Context(), 5*time.Minute)
+defer cancel()
+return runLite(ctx, args, cmd.Root().PersistentFlags().GetBool)
+},
 }
 
-func init() {
-	updateCmd.Flags().BoolVar(&localRun, "local-run", false, "run without docker")
-	rootCmd.AddCommand(updateCmd)
+cmd.Flags().BoolVar(&localRun, "local-run", false, "run without docker")
+return cmd
 }
 
-func RunLite(args []string, verbose bool) error {
-	ecosystem := "go_modules"
-	if len(args) > 0 && args[0] != "." {
-		ecosystem = args[0]
-	}
+func runLite(ctx context.Context, args []string, getBool func(string) (bool, error)) error {
+ecosystem := "go_modules"
+dir := "."
 
-	cwd, _ := os.Getwd()
-	if len(args) > 0 && args[len(args)-1] != ecosystem {
-		if filepath.IsAbs(args[len(args)-1]) || args[len(args)-1] == "." {
-			cwd, _ = filepath.Abs(args[len(args)-1])
-		}
-	}
+if len(args) >= 1 && args[0] != "." {
+ecosystem = args[0]
+}
+if len(args) == 2 {
+dir = args[1]
+}
 
-	if verbose {
-		fmt.Printf(">> Ecosystem: %s\n", ecosystem)
-		fmt.Printf(">> Dir: %s\n", cwd)
-	}
+absDir, err := filepath.Abs(dir)
+if err != nil {
+return fmt.Errorf("dir inválida %q: %w", dir, err)
+}
+if info, err := os.Stat(absDir); err != nil || !info.IsDir() {
+return fmt.Errorf("no existe dir %s", absDir)
+}
 
-	// Validación nativa previa
-	if ecosystem == "go_modules" {
-		if _, err := os.Stat(filepath.Join(cwd, "go.mod")); os.IsNotExist(err) {
-			return fmt.Errorf("no se encontró go.mod en %s", cwd)
-		}
-		if verbose {
-			fmt.Println(">> go.mod encontrado, resolviendo nativo...")
-		}
-	}
+if ecosystem == "go_modules" {
+if _, err := os.Stat(filepath.Join(absDir, "go.mod")); err != nil {
+return fmt.Errorf("no se encontró go.mod en %s: %w", absDir, err)
+}
+}
 
-	job := model.Job{
-		PackageManager: ecosystem,
-		Command:        model.UpdateFilesCommand,
-	}
+verbose, _ := getBool("verbose")
+if verbose {
+fmt.Printf(">> Diamond STABLE\n>> Ecosystem: %s\n>> Dir: %s\n", ecosystem, absDir)
+}
 
-	params := infra.RunParams{
-		LocalDir: cwd,
-		Job:      &job,
-	}
+job := model.Job{
+PackageManager: ecosystem,
+Command:        model.UpdateFilesCommand,
+}
+params := infra.RunParams{
+LocalDir: absDir,
+Job:      &job,
+}
 
-	if verbose {
-		fmt.Println(">> Dispatch a infra.RunLite (modo lite nativo)")
-	}
-
-	return infra.RunLite(params)
+return infra.RunLite(ctx, params)
 }
