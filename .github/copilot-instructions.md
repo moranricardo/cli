@@ -5,7 +5,7 @@ Go CLI that orchestrates Dependabot update jobs via Docker. Does NOT resolve dep
 It runs 3 containers: Proxy + Updater + Fake API Server.
 Flow: CLI -> proxy+updater on isolated networks -> updater calls fake API -> YAML output.
 
-go.mod: github.com/dependabot/cli, Go 1.22+
+go.mod: github.com/dependabot/cli, Go 1.27+ (bumped from 1.22 in 2026)
 
 ## Layout
 - cmd/dependabot/ - entrypoint, internal/cmd/ -> Cobra: update, test, graph, version
@@ -22,6 +22,11 @@ go.mod: github.com/dependabot/cli, Go 1.22+
 5. Ecosystems: Add in packageManagerLookup map in internal/infra/run.go (go_modules -> gomod).
 6. Limited Env / ARM: Binary must work as linux-armv7. Avoid /tmp assumption, use ./. Flag -v requires arg (volume), not verbose. docker.sock may not exist. test -o ./test.yml must work without Docker.
 
+## Security & Compliance (2026)
+- SECURITY.md: private advisory first, email moranmaldonadoricardo@gmail.com, 90d disclosure
+- CODE_OF_CONDUCT.md: Contributor Covenant 2.1, 48h SLA
+- Linter: .golangci.yml v2 with gosec enabled, 0 vuln target
+
 ## Build & Test
 go build -o dependabot ./cmd/dependabot
 ./dependabot test -o ./test.yml
@@ -29,3 +34,4 @@ go build -o dependabot ./cmd/dependabot
 go test ./... -race
 go test ./cmd/dependabot/ -count=1
 script/e2e <pattern>
+golangci-lint run ./...

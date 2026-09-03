@@ -12,6 +12,16 @@ linters:
     - prealloc
     - revive
     - staticcheck
+    - govet
+  settings:
+    gosec:
+      excludes:
+        - G115 # integer overflow conversion - false positive in Go 1.22+
+        - G306 # poor file perms false positive on tests
+    govet:
+      enable:
+        - shadow
+        - fieldalignment
 
 formatters:
   enable:
@@ -24,7 +34,12 @@ issues:
     - testdata
     - tmp
     - cache
+    - vendor
 
 run:
   timeout: 5m
-  modules-download-mode: readonly
+  allow-serial-runners: true
+
+output:
+  formats:
+    - format: colored-line-number
