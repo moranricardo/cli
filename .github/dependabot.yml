@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: "gomod"
+    - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -8,24 +8,15 @@ updates:
       time: "08:00"
       timezone: "America/Tijuana"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "go"
+    labels: ["dependencies","go"]
     commit-message:
       prefix: "chore"
       include: "scope"
-    groups:
-      go-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
 
-  - package-ecosystem: "github-actions"
+    - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    labels:
-      - "dependencies"
-      - "github-actions"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels: ["dependencies","github-actions"]
