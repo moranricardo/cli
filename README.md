@@ -4,14 +4,15 @@
 
 # Habilidades — GitHub Skills
 
-Repositorio de práctica de GitHub Skills — conectado a mi perfil y a Dependabot Lite.
+Repositorio oficial de práctica y desarrollo continuo de habilidades en GitHub, optimizado para la gestión modular, control de versiones y automatización ligera integrada al ecosistema de trabajo móvil.
 
-## 🎯 Skills
-- Introducción a GitHub
-- Markdown, Pages, Code Review
+## 🎯 Enfoque y Capacidades Técnicas
+- **Control de Versiones y Flujos:** Gestión avanzada de repositorios mediante comandos nativos, despliegues limpios y etiquetado estructurado de versiones estables.
+- **Automatización y Dependencias:** Integración con **Dependabot Lite** para la supervisión y mantenimiento preventivo de paquetes de software.
+- **Entorno de Ejecución:** Adaptado específicamente para operar de forma eficiente en recursos limitados (Moto E6, Android 9, ARM32) utilizando Termux como interfaz de apoyo operativo.
 
-## 🔗 Proyectos
-- [moranricardo/cli v0.5.3-lite](https://github.com/moranricardo/cli)
-- [moranricardo/moranricardo](https://github.com/moranricardo/moranricardo)
+## 🔗 Referencias del Proyecto
+- **Repositorio Principal:** [moranricardo/cli](https://github.com/moranricardo/cli)
+- **Perfil General:** [moranricardo/moranricardo](https://github.com/moranricardo/moranricardo)
 
 Building secure, efficient tools with Go. Focused on Dependabot Lite.
