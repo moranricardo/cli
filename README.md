@@ -1,15 +1,14 @@
-![Go](https://img.shields.io/badge/GO-1.27-00ADD8?style=for-the-badge&logo=go&logoColor=white)
-![Status](https://img.shields.io/badge/STATUS-LEARNING-2ECC71?style=for-the-badge)
-![Dependabot](https://img.shields.io/badge/DEPENDABOT-LITE-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
+# 🚀 moranricardo/cli
 
-# Habilidades — GitHub Skills
+Repositorio de práctica y orquestador nativo para el entorno de baja gama.
 
-Repositorio de práctica de GitHub Skills — conectado a mi perfil y a Dependabot Lite.
-
-## 🛠️ Especificaciones Técnicas y Entorno
-- **Dispositivo / Entorno:** Moto E6 (Android 9) / Termux / ARM32
-- **Go Version:** 1.27 (`CGO_ENABLED=0`, `-trimpath`)
-- **Orquestador:** Dependabot Lite Diamond (`DEPENDABOT_LOCAL_RUN=1`)
+## 📋 Información y Especificaciones del Entorno
+| Componente | Detalle Técnico |
+| :--- | :--- |
+| **Dispositivo** | Moto E6 (Android 9 / ARM32) |
+| **Herramienta de Control** | Termux (Desplazador y consola local) |
+| **Lenguaje / Versión** | Go 1.27 (`CGO_ENABLED=0`, `-trimpath`) |
+| **Orquestador** | Dependabot Lite Diamond (`DEPENDABOT_LOCAL_RUN=1`) |
 
 ## 🎯 Skills
 - Introducción a GitHub
