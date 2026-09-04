@@ -3,7 +3,7 @@
 [![Release](https://img.shields.io/github/v/release/moranricardo/cli?style=flat-square&color=blue)](https://github.com/moranricardo/cli/releases)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/moranricardo/cli/ci.yml?style=flat-square&label=sistema&color=success)](https://github.com/moranricardo/cli/actions)
 [![Go](https://img.shields.io/badge/GO-1.25-00ADD8?style=flat-square&logo=go&logoColor=white)](https://github.com/moranricardo/cli/blob/main/go.mod)
-[![Python](https://img.shields.io/badge/PYTHON-LITE-3776AB?style=flat-square&logo=python&logoColor=white)](https://github.com/moranricardo/cli)
+[![Dependabot](https://img.shields.io/badge/dependabot-active-025e8c?style=flat-square&logo=dependabot&logoColor=white)](https://github.com/moranricardo/cli/network/dependencies)
 [![Security](https://img.shields.io/badge/SECURITY-ZERO%20TRUST-2C3E50?style=flat-square)](https://github.com/moranricardo/cli)
 
 Repositorio oficial de práctica y desarrollo continuo de habilidades en GitHub, optimizado para la gestión modular, control de versiones y automatización ligera integrada al ecosistema de trabajo móvil.
