@@ -1,15 +1,13 @@
-![Go](https://img.shields.io/badge/GO-1.27-00ADD8?style=for-the-badge&logo=go&logoColor=white)
-![Status](https://img.shields.io/badge/STATUS-LEARNING-2ECC71?style=for-the-badge)
-![Dependabot](https://img.shields.io/badge/DEPENDABOT-LITE-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
+<code>GO: 1.27</code> <code>ARM32</code> | <code>ENV: Moto E6</code> <code>Android 9</code> | <code>DEP: Dependabot Lite</code>
 
 # Habilidades — GitHub Skills
 
 Repositorio de práctica de GitHub Skills — conectado a mi perfil y a Dependabot Lite.
 
-## 📋 Entorno Técnico
-- **Dispositivo:** Moto E6 (Android 9 / ARM32)
-- **Consola / Desplazador:** Termux
-- **Stack:** Go 1.27 / Dependabot Lite Diamond
+## 📋 Especificaciones del Sistema
+- **Dispositivo / Arquitectura:** Moto E6 / ARM32 (Termux)
+- **Compilación:** Go 1.27 (`CGO_ENABLED=0`)
+- **Gestión:** Dependabot Lite Diamond
 
 ## 🎯 Skills
 - Introducción a GitHub
