@@ -1,7 +1,5 @@
-# Habilidades — GitHub Skills
-
 ![Go](https://img.shields.io/badge/Go-1.27-00ADD8?style=for-the-badge&logo=go&logoColor=white)
-![Learning](https://img.shields.io/badge/Status-Learning-2ECC71?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Learning-2ECC71?style=for-the-badge)
 ![Dependabot](https://img.shields.io/badge/Dependabot-Lite-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
 
 Repositorio de práctica de GitHub Skills — conectado a mi perfil y a Dependabot Lite.
