@@ -1,13 +1,13 @@
-![Go](https://img.shields.io/badge/Go-1.27-00ADD8?style=for-the-badge&logo=go&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Active-2ECC71?style=for-the-badge)
-![Dependabot](https://img.shields.io/badge/Dependabot-Lite-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
+![Go](https://img.shields.io/badge/GO-1.27-00ADD8?style=for-the-badge&logo=go&logoColor=white)
+![Status](https://img.shields.io/badge/STATUS-LEARNING-2ECC71?style=for-the-badge)
+![Dependabot](https://img.shields.io/badge/DEPENDABOT-LITE-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
 
-# moranricardo/cli
+# Habilidades — GitHub Skills
 
-Orquestador nativo optimizado para entorno de baja gama (Moto E6, Android 9, ARM32) sin contenedores Docker.
+Repositorio de práctica de GitHub Skills — conectado a mi perfil y a Dependabot Lite.
 
-## 🛠️ Especificaciones Técnicas
-- **Entorno Local:** Moto E6 / Termux / ARM32
+## 🛠️ Especificaciones Técnicas y Entorno
+- **Dispositivo / Entorno:** Moto E6 (Android 9) / Termux / ARM32
 - **Go Version:** 1.27 (`CGO_ENABLED=0`, `-trimpath`)
 - **Orquestador:** Dependabot Lite Diamond (`DEPENDABOT_LOCAL_RUN=1`)
 
