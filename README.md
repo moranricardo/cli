@@ -1,4 +1,4 @@
-<img src="https://img.shields.io/badge/GO-1.27-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go"> <img src="https://img.shields.io/badge/STATUS-LEARNING-2ECC71?style=for-the-badge" alt="Status"> <img src="https://img.shields.io/badge/DEPENDABOT-LITE-025E8C?style=for-the-badge&logo=dependabot&logoColor=white" alt="Dependabot">
+<code>GO 1.27</code> <code>STATUS: LEARNING</code> <code>DEPENDABOT: LITE</code>
 
 # Habilidades — GitHub Skills
 
