@@ -1,51 +1,34 @@
-# CLI Debugging Guide (Lite v0.5+)
+# CLI Debugging Guide (Lite v0.5.3)
 
-Este documento explica cómo depurar ejecuciones del CLI usando el entorno nativo Go y el flujo `v0.5-lite` en dispositivos de recursos limitados.
+Guía para depurar el CLI en modo nativo Go sin Docker, optimizado para dispositivos de recursos limitados.
 
-## 1. Verificación rápida (Nativa, sin Docker)
+## 1. Build nativo ARM 32-bit ultra-ligero
 
-Prueba que el CLI pueda evaluar las dependencias localmente y generar el archivo de salida:
+Build reproducible sin cgo para entornos low-resource:
 
-./dependabot update go_modules dependabot/cli -o out.yml
-head -n 40 out.yml
+env -u GOOS -u GOARCH -u GOARM CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -tags netgo,osusergo -ldflags="-s -w" -trimpath -o dependabot ./cmd/dependabot
 
-Deberías ver la estructura YAML con las llamadas `create_pull_request`.
+./dependabot --help
+# binario ~2.8M ARM 32-bit
 
-## 2. Depuración del Runner Nativo Go (Lite / Low-resource)
+## 2. Verificación rápida (sin Docker)
 
-Para rastrear la ejecución interna sin contenedor ni Docker, lanza el runner en modo local con logs extendidos:
+DEPENDABOT_LOCAL_RUN=1 E6_LOW_MODE=1 ./dependabot update go_modules . --local-run -o /tmp/out.yml -v
+head -n 40 /tmp/out.yml
 
-go run ./cmd/dependabot update go_modules ./ --local --debug
+Debe generar YAML con `create_pull_request`.
 
-Puntos clave de la arquitectura a inspeccionar:
-- internal/infra/run-lite.go: Controla el aislamiento en /tmp y evita modificar el repositorio base.
-- internal/server/: Proxy local API HTTP que simula el backend de GitHub/Dependabot.
+## 3. Runner Nativo Lite (Diamond)
 
-## 3. Depuración del Updater (dependabot-core)
+export DEPENDABOT_LOCAL_RUN=1
+export E6_LOW_MODE=1
+go run ./cmd/dependabot update go_modules ./ --local-run -v
 
-Si necesitas depurar los parsers de Ruby desde la fuente original:
+Arquitectura:
+- internal/infra/run-lite.go: aislamiento en /tmp, timeout 10s, error propagation estricta
+- internal/server/: proxy local API :40505
 
-git clone https://github.com/dependabot/dependabot-core
-cd dependabot-core
-script/dependabot update go_modules dependabot/cli --debug
+## 4. Diagnóstico de bloqueos
 
-Dentro de la sesión interactiva:
-bin/run fetch_files
-bin/run update_files
-
-### Uso del Depurador de Ruby (rdbg)
-Inserta la sentencia `debugger` en el código de dependabot-core (por ejemplo, en `go_modules/lib/dependabot/go_modules/update_checker.rb`):
-
-def latest_resolvable_version
-  debugger
-  latest_version_finder.latest_version
-end
-
-Al ejecutar `bin/run update_files`, la consola se detendrá en esa línea para inspeccionar variables como `dependency`.
-
-## 4. Diagnóstico de bloqueos (Hangs)
-
-Si el proceso se congela durante una actualización:
-- En ejecuciones locales de Go, genera un dump del stack trace enviando la señal ABRT:
-  pkill -ABRT dependabot
-- Revisa las peticiones enviadas al proxy local observando la salida HTTP del servidor local (puerto por defecto :40505).
+pkill -ABRT dependabot
+ls /tmp/dependabot-*
