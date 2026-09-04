@@ -1,5 +1,3 @@
-<code>GO 1.27</code> <code>STATUS: LEARNING</code> <code>DEPENDABOT: LITE</code>
-
 # Habilidades — GitHub Skills
 
 Repositorio oficial de práctica y desarrollo continuo de habilidades en GitHub, optimizado para la gestión modular, control de versiones y automatización ligera integrada al ecosistema de trabajo móvil.
