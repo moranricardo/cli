@@ -1,29 +1,25 @@
-# cli - sistema interno Moto E6 Plus Android 9
+# Ricardo Moran — Go Developer | Security First | Dependabot Lite
 
-Fork de dependabot/cli adaptado por @moranricardo para dispositivos de baja gama.
+📍 Tijuana, MX 🇲🇽 | 📬 moranmaldonadoricardo@gmail.com
 
-> Termux X es solo desplazador de texto, no parte del proyecto.
+![Go](https://img.shields.io/badge/Go-1.27-00ADD8?style=for-the-badge&logo=go&logoColor=white)
+![Security](https://img.shields.io/badge/Security-First-FF0000?style=for-the-badge&logo=hackthebox&logoColor=white)
+![Dependabot](https://img.shields.io/badge/Dependabot-Lite-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
+![Profile views](https://komarev.com/ghpvc/?username=moranricardo&label=Profile%20views&color=0e75b6&style=flat)
 
-## Función
-Herramienta que orquesta jobs de Dependabot sin Docker en modo lite para Android 9.
+---
 
-## Instalación sistema interno
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dependabot-internal./cmd/dependabot
+### Building secure, efficient tools with Go. Focused on Dependabot Lite and Security Best Practices.
 
-## Uso
-./dependabot-internal --help
-./dependabot-internal update go_modules moranricardo/cli --provider github
-./dependabot-internal test -f testdata/smoke.yml
+- 🔭 Working on: Go 1.27 + Dependabot Lite v0.5.3 ARM32 Diamond
+- 🌱 Learning: Native Go runners, low-resource optimization, strict error propagation
+- 🛡️ Focus: Security First, reproducible builds without cgo
+- 📦 Main project: [moranricardo/cli](https://github.com/moranricardo/cli) — Dependabot Lite native
 
-## Modo Lite (Moto E6)
-El binario interno usa `internal/infra/run-lite.go` sin Docker:
-- Menos de 10MB
-- Sin daemon Docker
-- Compatible con shell Android estándar (am, logcat)
+#### Featured
+- **cli v0.5.3-lite** — 2.8M ARM 32-bit, native Go, no Docker, timeout 10s
+- **docs/debugging.md** — Low-resource debugging guide
+- **Go 1.27 STABLE**
 
-## Desarrollo
-go test./... -count=1 -short
-go vet./...
-
-## Licencia
-MIT - Copyright 2022 GitHub, Inc.
+---
+*Low-resource • Native • Secure*
