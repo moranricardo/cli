@@ -1,5 +1,8 @@
 # Habilidades — GitHub Skills
 
+[![Release](https://img.shields.io/github/v/release/moranricardo/cli?style=flat-square&color=blue)](https://github.com/moranricardo/cli/releases)
+[![Go Version](https://img.shields.io/github/go-mod/v/moranricardo/cli?style=flat-square&color=orange)](https://github.com/moranricardo/cli/blob/main/go.mod)
+
 Repositorio oficial de práctica y desarrollo continuo de habilidades en GitHub, optimizado para la gestión modular, control de versiones y automatización ligera integrada al ecosistema de trabajo móvil.
 
 ## 🎯 Enfoque y Capacidades Técnicas
