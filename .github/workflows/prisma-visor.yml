@@ -1,0 +1,7 @@
+# cambia la línea del go list
+git add .github/workflows/prisma-visor.yml 
+git commit -m "fix: prisma only direct 
+deps, ignore indirect" git push gh 
+workflow run "PRISMA VISOR GLOBAL REAL" gh 
+run watch git pull
+cat health.json
