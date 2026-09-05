@@ -24,7 +24,7 @@ func detectEcosystem(dir string) string {
 func newUpdateCmd() *cobra.Command {
  cmd := &cobra.Command{
   Use: "update [ecosystem] [dir]",
-  Short: "Run dependabot update locally (Go 1.27 STABLE)",
+  Short: "Run dependabot update locally ",
   Args: cobra.MaximumNArgs(2),
   RunE: func(cmd *cobra.Command, args []string) error {
    if os.Getenv("DEPENDABOT_LOCAL_RUN")!= "1" {

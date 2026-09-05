@@ -8,7 +8,7 @@ import (
 
 var rootCmd = &cobra.Command{
   Use:   "dependabot",
-  Short: "Dependabot Lite - Orquestador nativo Go 1.27",
+  Short: "Dependabot Lite - Orquestador nativo ",
   Long: `Dependabot Lite es un orquestador nativo sin Docker`,
   SilenceUsage: true,
   SilenceErrors: true,
