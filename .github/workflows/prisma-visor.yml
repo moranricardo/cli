@@ -1,7 +1,39 @@
-# cambia la línea del go list
-git add .github/workflows/prisma-visor.yml 
-git commit -m "fix: prisma only direct 
-deps, ignore indirect" git push gh 
-workflow run "PRISMA VISOR GLOBAL REAL" gh 
-run watch git pull
-cat health.json
+name: Prisma Visor
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  visor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prisma Scan - Self Check
+        run: |
+          echo "=== PRISMA VISOR - cli ==="
+          if grep -R "termux\|/data/data/com.termux" --exclude-dir=.git -n.; then
+            echo "::error::LEAK ENCONTRADO"
+            exit 1
+          fi
+          echo "LIMPIO ✅ - cli ALL CLEAR"
+
+      - name: Prisma Global - Read all repos provided
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPOS="cli bot-reportes bot-factory didactic-octo-chrome ra-pulse-orchestrator proyecto-nuevo puppeteer scripts ia-didactica-core moranricardo"
+          for r in $REPOS; do
+            echo "Checking moranricardo/$r"
+            gh api repos/moranricardo/$r --jq '.name' 2>&1 || echo "skip $r"
+          done
+
+      - name: Build check
+        run: |
+          go mod tidy
+          go build -o /tmp/dependabot./cmd/dependabot
+          /tmp/dependabot --help
+          go version
