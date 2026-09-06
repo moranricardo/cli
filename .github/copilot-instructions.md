@@ -33,7 +33,6 @@ status## Security & Compliance -
 SECURITY.md: private advisory first, 90d 
 disclosure - Integridad: siempre commitear 
 go.sum git commit -m "chore: excluye 
-termux y binario local del repo, native 
 compatible"
 git push## Build
 go build -o dependabot ./cmd/dependabot
