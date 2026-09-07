@@ -17,3 +17,4 @@ Repositorio oficial de práctica y desarrollo continuo de habilidades en GitHub,
 - **Perfil General:** [moranricardo/moranricardo](https://github.com/moranricardo/moranricardo)
 
 Building secure, efficient tools with Go. Focused on Dependabot Lite.
+
