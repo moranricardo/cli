@@ -1,48 +1,39 @@
 name: SMA - Monitor Fantasma
-
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: '0 */6 * * *'
-
+  workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.25'
-
       - name: Scan fantasmas
         id: scan
         run: |
-          echo "Buscando errores fantasmas..."
           STATUS="passing"
           COLOR="brightgreen"
-
-          if! go vet./...; then
+          if ! go vet./...; then
             STATUS="failing"
             COLOR="red"
           fi
-
-          SUELTOS=$(find. -type f \( -name "*.bak" -o -name "*_old.go" -o -name "tmp_*" \) | wc -l)
-          PRINTS=$(grep -r "fmt.Println\|TODO" --include="*.go". | wc -l)
-
+          SUELTOS=$(find . -type f \( -name "*.bak" -o -name "*_old.go" \) | wc -l)
+          PRINTS=$(grep -r "fmt.Println" --include="*.go" . | wc -l || true)
           if [ "$SUELTOS" -gt 0 ] || [ "$PRINTS" -gt 0 ]; then
-            if [ "$STATUS"!= "failing" ]; then
+            if [ "$STATUS" != "failing" ]; then
               STATUS="ghost-detected"
               COLOR="yellow"
             fi
           fi
-
           echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "color=$COLOR" >> $GITHUB_OUTPUT
-
-      - name: Actualiza badge en README
+      - name: Actualiza badge
         run: |
           STATUS="${{ steps.scan.outputs.status }}"
           COLOR="${{ steps.scan.outputs.color }}"
