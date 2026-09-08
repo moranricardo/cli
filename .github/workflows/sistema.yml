@@ -13,24 +13,46 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+      - uses: actions/setup-node@v4
+        with:
+      node-version: '20'
       - id: scan
-        name: Scan
+        name: Scan Go
         run: |
           STATUS="passing"
-      COLOR="brightgreen"
+          COLOR="brightgreen"
       if ! go vet ./...; then
         STATUS="failing"
         COLOR="red"
-      fi
+          fi
       echo "status=$STATUS" >> $GITHUB_OUTPUT
       echo "color=$COLOR" >> $GITHUB_OUTPUT
+      - id: prisma
+        name: Scan Prisma
+    run: |
+          P_STATUS="secure"
+      P_COLOR="2D3748"
+      if [ -f package.json ]; then
+        npm audit --json > /tmp/audit.json 2>&1 || true
+        if grep -q "prisma" /tmp/audit.json && grep -q "high\|critical" /tmp/audit.json; then
+      P_STATUS="vulnerable"
+          P_COLOR="red"
+        fi
+      fi
+      echo "p_status=$P_STATUS" >> $GITHUB_OUTPUT
+      echo "p_color=$P_COLOR" >> $GITHUB_OUTPUT
       - name: Badge
         run: |
           STATUS="${{ steps.scan.outputs.status }}"
-          COLOR="${{ steps.scan.outputs.color }}"
+      COLOR="${{ steps.scan.outputs.color }}"
+      P_STATUS="${{ steps.prisma.outputs.p_status }}"
+          P_COLOR="${{ steps.prisma.outputs.p_color }}"
       sed -i "s|\[sistema\](.*)|[sistema](https://img.shields.io/badge/sistema-${STATUS}-${COLOR})|g" README.md
+      sed -i "s|Prisma.*v5.22.0.*|Prisma-${P_STATUS}-${P_COLOR}?logo=prisma\&logoColor=white)|g" README.md
+      sed -i "s|Prisma.*secure.*|Prisma-${P_STATUS}-${P_COLOR}?logo=prisma\&logoColor=white)|g" README.md
+      sed -i "s|Prisma.*vulnerable.*|Prisma-${P_STATUS}-${P_COLOR}?logo=prisma\&logoColor=white)|g" README.md
           git config user.name "SMA-Bot"
-          git config user.email "sma@bot.local"
-      git add README.md
-      git diff --quiet && git diff --staged --quiet || git commit -m "chore(sma): sistema -> $STATUS"
+      git config user.email "sma@bot.local"
+          git add README.md
+      git diff --quiet && git diff --staged --quiet || git commit -m "chore(sma): sistema -> $STATUS, prisma -> $P_STATUS"
       git push
