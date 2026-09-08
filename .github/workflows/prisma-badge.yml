@@ -11,7 +11,7 @@ jobs:
   badge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: |
           mkdir -p out
           echo '{"schemaVersion":1,"label":"prisma","message":"ok","color":"brightgreen"}' > out/prisma.json
