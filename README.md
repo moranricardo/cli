@@ -1,4 +1,4 @@
-# Habilidades — GitHub Skills
+# pega esto al inicio del README, en la linea 1:# Habilidades — GitHub Skills
 
 [![Release](https://img.shields.io/github/v/release/moranricardo/cli?style=flat-square&color=blue)](https://github.com/moranricardo/cli/releases)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/moranricardo/cli/ci.yml?style=flat-square&label=sistema&color=success)](https://github.com/moranricardo/cli/actions)
