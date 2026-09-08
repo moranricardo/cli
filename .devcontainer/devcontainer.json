@@ -1,21 +1,16 @@
 {
-  "name": "CLI - Go & Node",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  "name": "CLI Lite - E6 Adapt",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.23",
       "installTools": true
     },
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "22"
-    },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "version": "latest",
-      "dockerDashComposeVersion": "v2",
-      "moby": false
+      "version": "20"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "2.62.0"
+      "version": "latest"
     }
   },
   "customizations": {
@@ -33,7 +28,6 @@
       ]
     }
   },
-  "postCreateCommand": "go mod download && go mod tidy",
-  "remoteUser": "vscode",
-  "updateContentCommand": "go version && node --version && gh --version"
+  "postCreateCommand": "go mod download && npm install -g prisma@latest && go version && node --version",
+  "remoteUser": "vscode"
 }
