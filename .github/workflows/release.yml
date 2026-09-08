@@ -29,6 +29,9 @@ jobs:
             goarch: arm64
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag || github.ref_name || github.event.release.tag_name }}
+          fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
           go-version: '1.23'
@@ -39,8 +42,11 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goarm: ${{ matrix.goarm }}
+          goversion: https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz
           binary_name: cli
-          project_path:./cmd/dependabot
-          ldflags: -s -w -X github.com/moranricardo/cli/cmd/dependabot/internal/cmd.version=${{ github.ref_name || github.event.release.tag_name || inputs.tag }}
+          project_path:./cmd/e6
+          ldflags: -s -w -X main.version=${{ inputs.tag || github.ref_name || github.event.release.tag_name }}
           extra_files: LICENSE README.md
           retry: 10
+          release_name: ${{ inputs.tag || github.ref_name || github.event.release.tag_name }}
+          release_tag: ${{ inputs.tag || github.ref_name || github.event.release.tag_name }}
