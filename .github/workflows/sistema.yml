@@ -1,77 +1,36 @@
 name: SMA - Monitor Fantasma
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: write
-  issues: write
-
 jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
-
-      - name: Scan fantasmas + notifica
-        id: scan
+          go-version: '1.23'
+      - id: scan
+        name: Scan
         run: |
           STATUS="passing"
-          COLOR="brightgreen"
-          REPORTE=""
-
-          if ! go vet./...; then
-            STATUS="failing"
-            COLOR="red"
-            REPORTE="$REPORTE\n- ❌ go vet falló"
-          fi
-
-          SUELTOS=$(find . -type f \( -name "*.bak" -o -name "*_old.go" -o -name "tmp_*" \) 2>/dev/null)
-          PRINTS=$(grep -rn "fmt.Println" --include="*.go" . 2>/dev/null || true)
-
-          if [ -n "$SUELTOS" ]; then
-            REPORTE="$REPORTE\n- 👻 Archivos fantasmas:\n\`\`\`\n$SUELTOS\n\`\`\`"
-            [ "$STATUS" != "failing" ] && STATUS="ghost-detected" && COLOR="yellow"
-          fi
-
-          if [ -n "$PRINTS" ]; then
-            REPORTE="$REPORTE\n- 👀 Print sueltos:\n\`\`\`\n$PRINTS\n\`\`\`"
-            [ "$STATUS" != "failing" ] && STATUS="ghost-detected" && COLOR="yellow"
-          fi
-
-          echo "status=$STATUS" >> $GITHUB_OUTPUT
-          echo "color=$COLOR" >> $GITHUB_OUTPUT
-          echo -e "$REPORTE" > /tmp/reporte.txt
-          echo "reporte<<EOF" >> $GITHUB_OUTPUT
-          cat /tmp/reporte.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          if [ "$STATUS" != "passing" ]; then
-            echo "::warning:: SMA detectó: $STATUS"
-          fi
-
-      - name: Actualiza badge
+      COLOR="brightgreen"
+      if ! go vet ./...; then
+        STATUS="failing"
+        COLOR="red"
+      fi
+      echo "status=$STATUS" >> $GITHUB_OUTPUT
+      echo "color=$COLOR" >> $GITHUB_OUTPUT
+      - name: Badge
         run: |
           STATUS="${{ steps.scan.outputs.status }}"
           COLOR="${{ steps.scan.outputs.color }}"
-          sed -i "s|\[sistema\](.*)|[sistema](https://img.shields.io/badge/sistema-${STATUS}-${COLOR})|g" README.md
+      sed -i "s|\[sistema\](.*)|[sistema](https://img.shields.io/badge/sistema-${STATUS}-${COLOR})|g" README.md
           git config user.name "SMA-Bot"
           git config user.email "sma@bot.local"
-          git add README.md
-          git diff --quiet && git diff --staged --quiet || git commit -m "chore(sma): sistema -> $STATUS"
-          git push
-
-      - name: Crea Issue si hay fantasma
-        if: steps.scan.outputs.status!= 'passing'
-        uses: peter-evans/create-issue-from-file@v5
-        with:
-          title: "👻 SMA detectó: ${{ steps.scan.outputs.status }}"
-          content-filepath: /tmp/reporte.txt
-          labels: sma, ghost
+      git add README.md
+      git diff --quiet && git diff --staged --quiet || git commit -m "chore(sma): sistema -> $STATUS"
+      git push
