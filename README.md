@@ -7,4 +7,4 @@
 
 > CLI lite con Zero Trust
 [![sistema](https://github.com/moranricardo/cli/actions/workflows/sistema.yml/badge.svg)](https://github.com/moranricardo/cli/actions/workflows/sistema.yml)
-[![Prisma](https://img.shields.io/badge/Prisma-secure-2D3748?logo=prisma&logoColor=white)](https://github.com/moranricardo/cli/actions/workflows/sistema.yml)
+[![prisma](https://github.com/moranricardo/cli/actions/workflows/prisma.yml/badge.svg)](https://github.com/moranricardo/cli/actions/workflows/prisma.yml)
