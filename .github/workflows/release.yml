@@ -43,9 +43,10 @@ jobs:
           goarm: ${{ matrix.goarm }}
           goversion: https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz
           binary_name: cli
-          project_path: ./cmd/e6
+          project_path: ./cmd/dependabot
           ldflags: -s -w -X main.version=${{ inputs.tag || github.ref_name || github.event.release.tag_name }}
           extra_files: LICENSE README.md
           retry: 10
+          overwrite: true
           release_name: ${{ inputs.tag || github.ref_name || github.event.release.tag_name }}
           release_tag: ${{ inputs.tag || github.ref_name || github.event.release.tag_name }}
