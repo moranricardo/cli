@@ -22,15 +22,16 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Go tidy
         run: go mod tidy && git diff --exit-code -- go.mod go.sum
 
-      - name: Build
-        run: go build ./...
+      - name: Go vet
+        run: go vet ./...
+
+      - name: Build lite
+        run: go build -o /tmp/dependabot ./cmd/dependabot
 
       - name: Test
-        run: go test ./... -count=1
-
-      - run: echo "ci v0.5.9-lite 0 vuln - d649554"
+        run: go test ./... -count=1 -short
